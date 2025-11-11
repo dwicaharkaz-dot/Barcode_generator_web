@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Generator Profesional</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    
+    <style>
+        /* CSS untuk Tampilan Profesional */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            margin-top: 40px;
+        }
+
+        /* Header dan Garis Pemisah (Double Line) */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        /* Styling Garis Dobel Pemisah */
+        hr {
+            border: none;
+            height: 4px;
+            background: 
+                linear-gradient(to right, #3498db 50%, transparent 50%),
+                linear-gradient(to right, #3498db, #2980b9);
+            background-size: 100% 2px, 100% 2px;
+            background-repeat: no-repeat;
+            background-position: 0 0, 0 2px;
+            margin-bottom: 25px;
+        }
+
+        /* Input dan Tombol */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        #dataInput {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        #dataInput:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        #generateBtn {
+            flex-grow: 1;
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        #generateBtn:hover {
+            background-color: #27ae60;
+            transform: translateY(-1px);
+        }
+
+        #clearBtn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        #clearBtn:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        /* Area Barcode */
+        .barcode-area {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid #ecf0f1;
+            margin-top: 20px;
+        }
+
+        .barcode-area p {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        /* Barcode SVG/Canvas */
+        #barcode {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #fff;
+            box-sizing: content-box;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <h1>Barcode Generator 📊</h1>
+        </header>
+
+        <hr> 
+        
+        <label for="dataInput">Masukkan Teks atau Angka (Disarankan Maksimal 20 Karakter):</label>
+        <input type="text" id="dataInput" placeholder="Contoh: KodeProduk123 atau 1234567890">
+
+        <div class="button-group">
+            <button class="btn" id="generateBtn" onclick="generateBarcode()">Generate Barcode</button>
+            <button class="btn" id="clearBtn" onclick="clearInputAndBarcode()">Clear Text</button>
+        </div>
+
+        <div class="barcode-area">
+            <p>Hasil Barcode (Code 128):</p>
+            <svg id="barcode"></svg>
+        </div>
+
+    </div>
+
+    <script>
+        // JavaScript untuk Fungsionalitas
+        
+        /**
+         * Fungsi untuk menghasilkan barcode
+         */
+        function generateBarcode() {
+            const data = document.getElementById('dataInput').value.trim();
+            const barcodeElement = document.getElementById('barcode');
+
+            // Validasi input
+            if (data === "") {
+                alert("Masukkan teks atau angka yang ingin diubah menjadi barcode!");
+                return;
+            }
+
+            // Batasi panjang agar tampilan barcode tetap baik
+            if (data.length > 20) {
+                 // Anda bisa menghapus batasan ini, tetapi barcode akan menjadi sangat lebar
+            }
+
+            try {
+                // Menggunakan JsBarcode untuk menghasilkan Code 128
+                JsBarcode(barcodeElement, data, {
+                    format: "CODE128", 
+                    displayValue: true, 
+                    text: data, 
+                    margin: 10,
+                    width: 2, 
+                    height: 100 
+                });
+            } catch (error) {
+                alert("Gagal membuat barcode. Pastikan input hanya mengandung karakter yang valid untuk CODE128.");
+                console.error("Barcode Generation Error:", error);
+            }
+        }
+        
+        /**
+         * Fungsi untuk menghapus input teks dan barcode
+         */
+        function clearInputAndBarcode() {
+            document.getElementById('dataInput').value = "";
+            
+            // Hapus gambar barcode dari elemen SVG
+            const barcodeElement = document.getElementById('barcode');
+            barcodeElement.innerHTML = '';
+            
+            // Bersihkan atribut SVG
+            barcodeElement.removeAttribute('width');
+            barcodeElement.removeAttribute('height');
+        }
+
+        // Opsional: Jalankan fungsi generateBarcode saat menekan tombol Enter
+        document.getElementById('dataInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                generateBarcode();
+            }
+        });
+    </script>
+</body>
+</html>
