@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Generator Profesional</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <style>
+        /* CSS untuk Tampilan Profesional */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            margin-top: 40px;
+        }
+
+        /* Header dan Garis Pemisah (Double Line) */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        /* Styling Garis Dobel Pemisah */
+        hr {
+            border: none;
+            height: 4px;
+            background: 
+                linear-gradient(to right, #3498db 50%, transparent 50%),
+                linear-gradient(to right, #3498db, #2980b9);
+            background-size: 100% 2px, 100% 2px;
+            background-repeat: no-repeat;
+            background-position: 0 0, 0 2px;
+            margin-bottom: 25px;
+        }
+
+        /* Input dan Tombol */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        #dataInput {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        #dataInput:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        #generateBtn {
+            flex-grow: 1;
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        #generateBtn:hover {
+            background-color: #27ae60;
+            transform: translateY(-1px);
+        }
+
+        #clearBtn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        #clearBtn:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        /* Area Barcode */
+        .barcode-area {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid #ecf0f1;
+            margin-top: 20px;
+        }
+
+        .barcode-area p {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        /* Barcode SVG/Canvas */
+        #barcode {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #fff;
+            box-sizing: content-box;
+        }
+        
+        /* CSS BARU UNTUK NAVIGASI DROPDOWN YANG LEBIH MENARIK */
+        .dropdown {
+            position: relative;
+            display: inline-block; 
+            margin-bottom: 20px; 
+        }
+
+        #menu-btn {
+            background-color: #3498db; /* Biru cerah */
+            color: white;
+            padding: 12px 18px; /* Padding lebih besar */
+            border: none;
+            border-radius: 8px; /* Lebih membulat */
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em; /* Ukuran font lebih besar */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            display: flex; /* Untuk menempatkan ikon di samping teks */
+            align-items: center;
+            gap: 8px; /* Jarak antara teks dan ikon */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow tombol */
+        }
+        #menu-btn:hover {
+            background-color: #2980b9; /* Biru lebih gelap saat hover */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        }
+        #menu-btn i { /* Styling untuk ikon panah */
+            transition: transform 0.3s ease;
+        }
+        .dropdown.active #menu-btn i { /* Rotasi panah saat aktif */
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            display: none; /* Awalnya sembunyikan */
+            position: absolute;
+            background-color: #fefefe; /* Warna latar putih bersih */
+            min-width: 220px; /* Lebar minimum */
+            box-shadow: 0px 8px 20px 0px rgba(0,0,0,0.25); /* Shadow lebih kuat */
+            z-index: 10;
+            border-radius: 8px; /* Sudut membulat */
+            top: 100%; 
+            left: 0;
+            margin-top: 10px; /* Jarak lebih besar dari tombol */
+            overflow: hidden; /* Pastikan konten tidak meluber saat animasi */
+
+            /* Animasi */
+            transform-origin: top;
+            transform: scaleY(0);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        .dropdown.active .dropdown-content { /* Tampilkan saat aktif */
+            display: block;
+            transform: scaleY(1);
+            opacity: 1;
+        }
+
+        .dropdown-content a {
+            color: #34495e; /* Warna teks gelap */
+            padding: 14px 20px; /* Padding lebih besar */
+            text-decoration: none;
+            display: flex; /* Untuk ikon di samping teks */
+            align-items: center;
+            gap: 10px; /* Jarak antara ikon dan teks */
+            font-weight: 500;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-bottom: 1px solid #eee; /* Garis pemisah antar item */
+        }
+        .dropdown-content a:last-child {
+            border-bottom: none; /* Tidak ada garis di item terakhir */
+        }
+
+        .dropdown-content a:hover {
+            background-color: #e8f4f8; /* Latar belakang biru muda saat hover */
+            color: #2980b9; /* Warna teks biru saat hover */
+        }
+        .dropdown-content a i {
+            color: #7f8c8d; /* Warna ikon default */
+            font-size: 1.1em;
+        }
+        .dropdown-content a:hover i {
+            color: #3498db; /* Warna ikon biru saat hover */
+        }
+        
+        /* Spesifik untuk Barcode Produk IDM */
+        .dropdown-content a[href="index.html"] {
+            color: #e50013; /* Merah Indomaret */
+            font-weight: bold;
+        }
+        .dropdown-content a[href="index.html"] i {
+            color: #e50013;
+        }
+        .dropdown-content a[href="index.html"]:hover {
+            background-color: #ffe6e6; /* Latar belakang pink muda saat hover */
+            color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="main-dropdown" class="dropdown">
+            <button id="menu-btn" class="nav-btn">
+                ☰ Menu <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="menu-content" class="dropdown-content">
+                <a href="index.html"><i class="fas fa-barcode"></i> Barcode Produk IDM</a>
+                <a href="#" onclick="alert('Fitur Barcode ESS (Employee) belum tersedia.')"><i class="fas fa-users"></i> Barcode ESS Karyawan</a>
+                <a href="#" onclick="alert('Fitur Lain belum tersedia.')"><i class="fas fa-cogs"></i> Fitur Lain...</a>
+            </div>
+        </div>
+        
+        <header>
+            <h1>Barcode Generator 📊</h1>
+        </header>
+
+        <hr> 
+        
+        <label for="dataInput">Masukkan Teks atau Angka (Disarankan Maksimal 20 Karakter):</label>
+        <input type="text" id="dataInput" placeholder="Contoh: KodeProduk123 atau 1234567890">
+
+        <div class="button-group">
+            <button class="btn" id="generateBtn" onclick="generateBarcode()">Generate Barcode</button>
+            <button class="btn" id="clearBtn" onclick="clearInputAndBarcode()">Clear Text</button>
+        </div>
+
+        <div class="barcode-area">
+            <p>Hasil Barcode (Code 128):</p>
+            <svg id="barcode"></svg>
+        </div>
+
+    </div>
+
+    <script>
+        // JavaScript untuk Fungsionalitas Barcode
+        function generateBarcode() {
+            const data = document.getElementById('dataInput').value.trim();
+            const barcodeElement = document.getElementById('barcode');
+
+            if (data === "") {
+                alert("Masukkan teks atau angka yang ingin diubah menjadi barcode!");
+                return;
+            }
+
+            try {
+                JsBarcode(barcodeElement, data, {
+                    format: "CODE128", 
+                    displayValue: true, 
+                    text: data, 
+                    margin: 10,
+                    width: 2, 
+                    height: 100 
+                });
+            } catch (error) {
+                alert("Gagal membuat barcode. Pastikan input hanya mengandung karakter yang valid untuk CODE128.");
+                console.error("Barcode Generation Error:", error);
+            }
+        }
+        
+        function clearInputAndBarcode() {
+            document.getElementById('dataInput').value = "";
+            const barcodeElement = document.getElementById('barcode');
+            barcodeElement.innerHTML = '';
+            barcodeElement.removeAttribute('width');
+            barcodeElement.removeAttribute('height');
+        }
+
+        document.getElementById('dataInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                generateBarcode();
+            }
+        });
+
+        // ====================================================================
+        // JavaScript untuk Fungsionalitas Dropdown Menu
+        // ====================================================================
+        const dropdown = document.getElementById('main-dropdown');
+        const menuBtn = document.getElementById('menu-btn');
+        const menuContent = document.getElementById('menu-content');
+
+        // Toggle dropdown saat tombol menu diklik
+        menuBtn.addEventListener('click', function() {
+            dropdown.classList.toggle('active');
+        });
+
+        // Tutup dropdown jika mengklik di luar area dropdown
+        window.addEventListener('click', function(event) {
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+    </script>
+</body>
+</html>

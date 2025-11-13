@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BARCODE PRODUK IDM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #e50013; /* Merah Indomaret */
+            color: white;
+            padding: 10px 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+        }
+        header h1 {
+            margin: 0;
+            /* PERUBAHAN: Memperkecil ukuran font menjadi 1.3em */
+            font-size: 1.3em; 
+            color: white;
+            font-family: 'Oswald', sans-serif; 
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            flex-grow: 1; 
+            text-align: left; 
+            white-space: nowrap; 
+        }
+        .header-separator {
+            border: 0;
+            height: 3px;
+            background-image: linear-gradient(to right, #e50013, #ff4c4c, #e50013); 
+            margin: 0 0 20px 0; 
+        }
+        .logo-indomaret {
+            height: 35px; 
+            margin-left: 10px; 
+            background-color: white; 
+            padding: 3px 8px; 
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        /* Style untuk tombol kategori dan editnya */
+        #category-buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .category-group {
+            display: flex;
+            align-items: center;
+        }
+        .category-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 15px; /* Disesuaikan untuk grup */
+            border: none;
+            border-radius: 6px 0 0 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .category-button:hover {
+            background-color: #0056b3;
+        }
+        /* Tombol Edit Kategori */
+        .edit-category-btn {
+            background-color: #ffc107; /* Kuning */
+            color: #333;
+            padding: 12px;
+            border: none;
+            border-radius: 0 6px 6px 0;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+            line-height: 1;
+            height: 100%;
+            margin: 0;
+        }
+        .edit-category-btn:hover {
+            background-color: #e0a800;
+        }
+
+        .add-category-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+        }
+        .add-category-btn:hover {
+            background-color: #1e7e34;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto; 
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        h2, h3 {
+            color: #e50013;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .product-list {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+        }
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .product-item:hover {
+            background-color: #e9ecef;
+        }
+        .product-info {
+            flex-grow: 1;
+        }
+        .delete-product-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .delete-product-btn:hover {
+            background-color: #bd2130;
+        }
+        #add-product-form, #add-category-form {
+            padding: 15px;
+            border: 1px solid #17a2b8;
+            border-radius: 4px;
+            margin-top: 15px;
+            background-color: #e0f7fa;
+            display: none; 
+        }
+        #add-category-form {
+            border-color: #ffc107;
+            background-color: #fffbe0;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745; 
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #1e7e34;
+        }
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4); 
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%; 
+            max-width: 400px;
+            border-radius: 8px;
+            position: relative;
+            text-align: center;
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        #qrcode-display {
+            padding: 15px;
+            border: 1px dashed #e50013;
+            margin-bottom: 15px;
+            display: inline-block;
+            background: white;
+        }
+        .barcode-note {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+        button.copy-btn {
+            background-color: #007bff;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        button.copy-btn:hover {
+            background-color: #0056b3;
+        }
+        #delete-category-btn {
+            background-color: #dc3545;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>BARCODE PRODUK IDM 🏷️</h1>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9d/Logo_Indomaret.png" alt="Logo Indomaret" class="logo-indomaret">
+    </header>
+    
+    <hr class="header-separator">
+
+    <main>
+        <section id="category-selection">
+            <h2>Pilih Kategori Produk 👇</h2>
+            <div id="category-buttons-container">
+                </div>
+            
+            <button class="category-button add-category-btn" onclick="showAddCategoryForm()">Tambah Kategori Baru 🆕</button>
+            
+            <div id="add-category-form">
+                <h3>Tambahkan Kategori Baru</h3>
+                <form id="new-category-form">
+                    <label for="new-category-name">Nama Kategori (Contoh: Roti Manis):</label>
+                    <input type="text" id="new-category-name" required placeholder="Nama Kategori">
+                    <button type="submit">Simpan Kategori</button>
+                    <button type="button" onclick="hideAddCategoryForm()" style="background-color: #6c757d;">Batal</button>
+                </form>
+            </div>
+        </section>
+
+        <hr>
+
+        <section id="product-management" style="display:none;">
+            <h2 id="product-category-title">Produk: </h2>
+            
+            <button id="show-add-form-btn">Tambah Produk Baru ➕</button>
+            <div id="add-product-form">
+                <h3>Formulir Tambah Produk</h3>
+                <form id="new-product-form">
+                    <label for="new-plu">PLU:</label>
+                    <input type="text" id="new-plu" required placeholder="Contoh: 20090981"><br>
+
+                    <label for="new-nama">Nama Produk:</label>
+                    <input type="text" id="new-nama" required placeholder="Contoh: S BRD TA POLO COKLAT"><br>
+
+                    <button type="submit">Simpan Produk</button>
+                    <button type="button" onclick="hideAddForm()">Batal</button>
+                </form>
+            </div>
+
+            <div id="product-list-container" class="product-list">
+                <p>Silakan pilih kategori produk di atas.</p>
+            </div>
+        </section>
+
+
+        <div id="barcode-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h3 id="modal-product-name">Barcode Produk</h3>
+
+                <div id="qrcode-display">
+                    <div id="qrcode-plu"></div>
+                </div>
+
+                <p class="barcode-note">PLU: <strong id="data-plu"></strong></p>
+                <p class="barcode-note">Nama Produk: <strong id="data-product-name"></strong></p>
+                <button class="copy-btn" onclick="copyToClipboard('data-plu')">Salin PLU</button>
+
+            </div>
+        </div>
+
+        <div id="edit-category-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn edit-close">&times;</span>
+                <h3>Edit Nama Kategori</h3>
+                <form id="edit-category-form">
+                    <input type="hidden" id="edit-old-category-key">
+                    <label for="edit-new-category-name">Nama Kategori Baru:</label>
+                    <input type="text" id="edit-new-category-name" required placeholder="Nama Kategori Baru">
+                    <button type="submit" style="background-color: #007bff;">Ganti Nama</button>
+                    <button type="button" onclick="document.getElementById('edit-category-modal').style.display='none'" style="background-color: #6c757d;">Batal</button>
+                </form>
+                <button id="delete-category-btn" type="button">Hapus Kategori Ini 🗑️</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ===================================================================================
+        // ☁️ FIREBASE CLOUD CONFIGURATION & INIT ☁️
+        // ===================================================================================
+        // GANTI DENGAN CONFIG FIREBASE ANDA SENDIRI
+        const firebaseConfig = {
+            apiKey: "AIzaSyDlaMjPJDQPQMZMTPSLDOuI_j47kKJEJmSWK", 
+            authDomain: "barcode-qscv.firebaseapp.com",
+            databaseURL: "https://barcode-qscv-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "barcode-qscv",
+            storageBucket: "barcode-qscv.appspot.com",
+            messagingSenderId: "204134538515",
+            appId: "1:204134538515:web:394a3880ced41726950eeb"
+        };
+        
+        // Data awal yang akan dimuat jika database kosong atau error
+        const INITIAL_PRODUCTS = {
+            'Saybread': [
+                { plu: "20090981", nama: "S BRD TA POLO COKLAT" },
+                { plu: "20090982", nama: "S BRD TA POLO KEJU" },
+                { plu: "20090997", nama: "S BRD TAC CHST PIE" },
+                { plu: "20090998", nama: "S BRD TA CHO TOP PIE" },
+                { plu: "20091004", nama: "S BRD TA DBL CHS ROL" },
+                { plu: "20135986", nama: "SB DC POLO MARTABAK" },
+            ],
+            'BuahPotong': [
+                { plu: "20111675", nama: "BP SEMANGKA MERAH TB" },
+                { plu: "20111690", nama: "BP MELON SKY" },
+                { plu: "20111676", nama: "BP MELON ROCK" },
+                { plu: "20111698", nama: "BP MELON GOLDEN" },
+                { plu: "20111680", nama: "BP PEPAYA CALIFORNIA" },
+            ]
+        };
+
+        let products = {};
+        let currentCategory = '';
+        let database;
+        let productsRef;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            productsRef = database.ref('produk/list');
+            loadProductsFromCloud();
+        } catch (e) {
+            console.error("FIREBASE ERROR:", e);
+            alert("⚠️ Error Cloud: Gagal terhubung ke database. Data awal akan dimuat (tidak tersimpan).");
+            products = INITIAL_PRODUCTS;
+            renderCategoryButtons();
+        }
+
+        // ===================================================================================
+        // FUNGSI PERSISTENSI DATA CLOUD
+        // ===================================================================================
+
+        function saveProductsToCloud() {
+            if (!database) return;
+            productsRef.set(products)
+                .then(() => {
+                    console.log("Data produk berhasil disimpan ke Cloud!");
+                    renderCategoryButtons();
+                    // Pastikan form manajemen produk disembunyikan setelah perubahan besar
+                    if (Object.keys(products).length === 0) {
+                         document.getElementById('product-management').style.display = 'none';
+                    }
+                })
+                .catch((error) => {
+                    console.error("Gagal menyimpan produk ke Cloud:", error);
+                    alert("Gagal menyimpan data produk ke Cloud. Cek koneksi internet Anda.");
+                });
+        }
+        
+        function loadProductsFromCloud() {
+            if (!database) return;
+
+            productsRef.once('value')
+                .then((snapshot) => {
+                    const data = snapshot.val();
+                    if (data && typeof data === 'object') {
+                        products = data;
+                    } else {
+                        products = INITIAL_PRODUCTS;
+                        saveProductsToCloud(); 
+                    }
+                    renderCategoryButtons();
+                    if (currentCategory) {
+                        renderProductList(currentCategory);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Gagal memuat produk dari Cloud:", error);
+                    products = INITIAL_PRODUCTS;
+                    renderCategoryButtons();
+                    if (currentCategory) {
+                        renderProductList(currentCategory);
+                    }
+                });
+        }
+
+        // ===================================================================================
+        // FUNGSI KATEGORI (TAMBAH & EDIT)
+        // ===================================================================================
+        const categoryButtonsContainer = document.getElementById('category-buttons-container');
+        const addCategoryFormDiv = document.getElementById('add-category-form');
+        const newCategoryForm = document.getElementById('new-category-form');
+        const editCategoryModal = document.getElementById('edit-category-modal');
+        const editCategoryForm = document.getElementById('edit-category-form');
+        const deleteCategoryBtn = document.getElementById('delete-category-btn');
+        
+        // Fungsi untuk mengonversi string menjadi key yang aman untuk Firebase (tanpa spasi)
+        function generateKey(name) {
+            return name.trim().replace(/\s+/g, '');
+        }
+
+        // Fungsi untuk mengonversi key kembali menjadi nama yang rapi untuk ditampilkan
+        function getDisplayName(key) {
+             // Mengganti CamelCase menjadi spasi, lalu trim
+             return key.replace(/([A-Z])/g, ' $1').trim(); 
+        }
+
+        function renderCategoryButtons() {
+            categoryButtonsContainer.innerHTML = '';
+            const categoryKeys = Object.keys(products);
+            
+            if (categoryKeys.length === 0) {
+                 categoryButtonsContainer.innerHTML = '<p style="color:#6c757d;">Belum ada kategori. Silakan tambahkan kategori produk.</p>';
+                 document.getElementById('product-management').style.display = 'none';
+                 return;
+            }
+
+            categoryKeys.forEach(categoryKey => {
+                const categoryGroup = document.createElement('div');
+                categoryGroup.className = 'category-group';
+
+                // Tombol Kategori
+                const button = document.createElement('button');
+                button.className = 'category-button';
+                button.textContent = getDisplayName(categoryKey);
+                button.onclick = () => showCategory(categoryKey);
+                
+                // Tombol Edit
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-category-btn';
+                editBtn.innerHTML = '✏️'; 
+                editBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    showEditCategoryModal(categoryKey);
+                };
+
+                categoryGroup.appendChild(button);
+                categoryGroup.appendChild(editBtn);
+                categoryButtonsContainer.appendChild(categoryGroup);
+            });
+        }
+        
+        function showAddCategoryForm() {
+            addCategoryFormDiv.style.display = 'block';
+        }
+        
+        function hideAddCategoryForm() {
+            addCategoryFormDiv.style.display = 'none';
+            document.getElementById('new-category-name').value = '';
+        }
+
+        // --- Tambah Kategori (Submit) ---
+        newCategoryForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const newCategoryNameRaw = document.getElementById('new-category-name').value;
+            const newCategoryKey = generateKey(newCategoryNameRaw);
+            
+            if (products.hasOwnProperty(newCategoryKey)) {
+                alert(`Kategori "${newCategoryNameRaw}" sudah ada!`);
+                return;
+            }
+
+            products[newCategoryKey] = [];
+            
+            saveProductsToCloud();
+            hideAddCategoryForm();
+            alert(`Kategori "${getDisplayName(newCategoryKey)}" berhasil ditambahkan!`);
+            
+            showCategory(newCategoryKey);
+        });
+
+        // --- Edit Kategori (Tampilkan Modal) ---
+        function showEditCategoryModal(oldKey) {
+            const displayName = getDisplayName(oldKey);
+            
+            document.getElementById('edit-old-category-key').value = oldKey;
+            document.getElementById('edit-new-category-name').value = displayName;
+            
+            // Perbarui tombol hapus dengan ID kategori yang benar
+            deleteCategoryBtn.onclick = () => deleteCategory(oldKey, displayName);
+
+            editCategoryModal.style.display = 'block';
+        }
+
+        // --- Edit Kategori (Ganti Nama Submit) ---
+        editCategoryForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const oldKey = document.getElementById('edit-old-category-key').value;
+            const newNameRaw = document.getElementById('edit-new-category-name').value;
+            const newKey = generateKey(newNameRaw);
+
+            if (oldKey === newKey) {
+                 editCategoryModal.style.display = 'none';
+                 return;
+            }
+            if (products.hasOwnProperty(newKey)) {
+                alert(`Kategori "${newNameRaw}" sudah ada!`);
+                return;
+            }
+            
+            // Pindahkan data produk dari key lama ke key baru
+            products[newKey] = products[oldKey];
+            delete products[oldKey];
+            
+            // Tutup modal dan simpan ke cloud
+            editCategoryModal.style.display = 'none';
+            saveProductsToCloud(); 
+            alert(`Nama kategori berhasil diubah dari ${getDisplayName(oldKey)} menjadi ${newNameRaw}!`);
+
+            // Pindahkan tampilan ke kategori baru
+            showCategory(newKey);
+        });
+        
+        // --- Hapus Kategori ---
+        function deleteCategory(key, name) {
+            if (confirm(`PERINGATAN: Menghapus kategori "${name}" akan menghapus ${products[key].length} produk di dalamnya. Lanjutkan?`)) {
+                delete products[key];
+                editCategoryModal.style.display = 'none';
+                saveProductsToCloud();
+                document.getElementById('product-management').style.display = 'none';
+                alert(`Kategori "${name}" dan semua produk di dalamnya telah dihapus.`);
+            }
+        }
+
+        // ===================================================================================
+        // FUNGSI UTAMA DAN EVENT LISTENER (Produk)
+        // ===================================================================================
+        
+        const productManagementSection = document.getElementById('product-management');
+        const productCategoryTitle = document.getElementById('product-category-title');
+        const listContainer = document.getElementById('product-list-container');
+        const addProductFormDiv = document.getElementById('add-product-form');
+        const newProductForm = document.getElementById('new-product-form');
+        const barcodeModal = document.getElementById('barcode-modal');
+        const closeModal = barcodeModal.querySelector('.close-btn');
+
+        function showCategory(category) {
+            currentCategory = category;
+            productCategoryTitle.textContent = `Produk: ${getDisplayName(category)}`;
+            productManagementSection.style.display = 'block';
+            addProductFormDiv.style.display = 'none';
+            document.getElementById('show-add-form-btn').textContent = 'Tambah Produk Baru ➕';
+            renderProductList(category);
+        }
+
+        function renderProductList(category) {
+            listContainer.innerHTML = ''; 
+
+            if (!products[category] || products[category].length === 0) {
+                listContainer.innerHTML = `<p style="color:#dc3545;">Daftar produk ${getDisplayName(category)} kosong. Silakan tambahkan produk baru.</p>`;
+                return;
+            }
+
+            products[category].forEach((product, index) => {
+                const item = document.createElement('div');
+                item.className = 'product-item';
+                item.setAttribute('data-index', index);
+                
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'product-info';
+                infoDiv.innerHTML = `<strong>${product.plu}</strong> - ${product.nama}`; 
+                infoDiv.onclick = () => showBarcodeModal(category, index);
+                item.appendChild(infoDiv);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-product-btn';
+                deleteBtn.textContent = 'Hapus';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation(); 
+                    deleteProduct(category, index, product.nama);
+                };
+                item.appendChild(deleteBtn);
+                
+                listContainer.appendChild(item);
+            });
+        }
+
+        function showBarcodeModal(category, index) {
+            const product = products[category][index];
+            document.getElementById('qrcode-plu').innerHTML = '';
+            
+            new QRCode(document.getElementById('qrcode-plu'), { text: product.plu, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.H });
+            
+            document.getElementById('modal-product-name').textContent = `Barcode Produk (${product.nama})`;
+            document.getElementById('data-plu').textContent = product.plu;
+            document.getElementById('data-product-name').textContent = product.nama;
+
+            barcodeModal.style.display = 'block';
+        }
+        
+        function deleteProduct(category, index, productName) {
+            if (confirm(`Apakah Anda yakin ingin menghapus produk ${productName} (PLU: ${products[category][index].plu})?`)) {
+                products[category].splice(index, 1); 
+                saveProductsToCloud(); 
+                renderProductList(category);
+                alert(`Produk ${productName} berhasil dihapus.`);
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const textToCopy = element.textContent;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert(`Berhasil menyalin: ${textToCopy}`);
+            }).catch(err => {
+                const tempInput = document.createElement('textarea');
+                tempInput.value = textToCopy;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                alert(`Berhasil menyalin: ${textToCopy}`);
+            });
+        }
+        window.copyToClipboard = copyToClipboard; 
+        
+        function hideAddForm() {
+             addProductFormDiv.style.display = 'none';
+             document.getElementById('show-add-form-btn').textContent = 'Tambah Produk Baru ➕';
+        }
+
+        // Event Listeners untuk Modal
+        closeModal.addEventListener('click', () => { barcodeModal.style.display = 'none'; });
+        document.querySelector('.edit-close').addEventListener('click', () => { editCategoryModal.style.display = 'none'; });
+        window.addEventListener('click', (event) => { 
+            if (event.target == barcodeModal) { barcodeModal.style.display = 'none'; }
+            if (event.target == editCategoryModal) { editCategoryModal.style.display = 'none'; }
+        });
+
+        // Event Listeners untuk Form Produk
+        document.getElementById('show-add-form-btn').addEventListener('click', () => {
+            const isHidden = addProductFormDiv.style.display === 'none';
+            addProductFormDiv.style.display = isHidden ? 'block' : 'none';
+            document.getElementById('show-add-form-btn').textContent = isHidden ? 'Sembunyikan Formulir' : 'Tambah Produk Baru ➕';
+        });
+        
+        newProductForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            const newProduct = {
+                plu: document.getElementById('new-plu').value,
+                nama: document.getElementById('new-nama').value
+            };
+
+            if (!products[currentCategory]) {
+                products[currentCategory] = [];
+            }
+            
+            products[currentCategory].push(newProduct);
+            newProductForm.reset();
+            saveProductsToCloud(); 
+            renderProductList(currentCategory);
+            
+            hideAddForm();
+            alert(`Produk ${newProduct.nama} berhasil ditambahkan ke ${getDisplayName(currentCategory)}!`);
+        });
+
+    </script>
+
+</body>
+</html>
