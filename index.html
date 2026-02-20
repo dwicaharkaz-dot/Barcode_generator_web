@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Generator Profesional</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+        .container { background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); width: 100%; max-width: 500px; position: relative; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: #2c3e50; font-size: 1.8em; margin-bottom: 5px; }
+        hr { border: none; height: 4px; background: linear-gradient(to right, #3498db 50%, transparent 50%), linear-gradient(to right, #3498db, #2980b9); background-size: 100% 2px, 100% 2px; background-repeat: no-repeat; background-position: 0 0, 0 2px; margin-bottom: 25px; }
+        
+        /* Input Nama Lebih Kecil */
+        .label-small { font-size: 0.8em; color: #7f8c8d; margin-bottom: 4px; font-weight: 600; display: block; }
+        .input-small { padding: 8px !important; font-size: 0.9em !important; margin-bottom: 12px !important; width: 100%; box-sizing: border-box; border: 1px solid #bdc3c7; border-radius: 4px; height: 35px; }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #34495e; font-size: 0.9em; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #bdc3c7; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
+        
+        .button-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        #generateBtn { flex-grow: 1; background-color: #2ecc71; color: white; }
+        #clearBtn { background-color: #e74c3c; color: white; }
+
+        .barcode-area { text-align: center; padding: 20px 0; border-top: 1px solid #ecf0f1; margin-top: 10px; background: white; }
+        #barcode { max-width: 100%; height: auto; padding: 10px; background-color: #fff; }
+
+        /* Tombol Fitur Pojok Atas */
+        .feature-header { display: flex; justify-content: space-between; align-items: flex-end; }
+        .feature-dropdown { position: relative; }
+        .btn-feature { background: #34495e; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.75em; cursor: pointer; display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+        .feature-content { display: none; position: absolute; right: 0; top: 100%; background: white; min-width: 160px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border-radius: 6px; z-index: 100; }
+        .feature-content.show { display: block; }
+        .feature-content button { width: 100%; padding: 10px; border: none; background: none; text-align: left; font-size: 0.85em; cursor: pointer; color: #34495e; border-bottom: 1px solid #eee; }
+        .feature-content button:hover { background: #f8f9fa; }
+
+        #reader { width: 100%; margin-top: 10px; display: none; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+
+        .tab-group { display: flex; margin-bottom: 15px; border-bottom: 2px solid #eee; }
+        .tab-btn { padding: 10px; cursor: pointer; border: none; background: none; font-weight: bold; color: #7f8c8d; font-size: 0.9em; }
+        .tab-btn.active { color: #3498db; border-bottom: 3px solid #3498db; }
+        .input-panel { display: none; }
+        .input-panel.active { display: block; }
+
+        .history-section { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8em; }
+        .history-table th, .history-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .history-row { cursor: pointer; }
+        .history-row:hover { background-color: #f1f9ff; }
+        
+        .dropdown { position: relative; display: inline-block; margin-bottom: 20px; }
+        #menu-btn { background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; }
+        .dropdown-content { display: none; position: absolute; background-color: #fff; min-width: 200px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); z-index: 10; border-radius: 8px; top: 100%; }
+        .dropdown.active .dropdown-content { display: block; }
+        .dropdown-content a { color: #34495e; padding: 12px 15px; text-decoration: none; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="main-dropdown" class="dropdown">
+            <button id="menu-btn">☰ Menu <i class="fas fa-chevron-down"></i></button>
+            <div id="menu-content" class="dropdown-content">
+                <a href="index.html"><i class="fas fa-home"></i> Halaman Utama</a>
+                <a href="barcode_produk.html"><i class="fas fa-barcode"></i> Barcode Produk</a>
+                <a href="barcode_ess.html"><i class="fas fa-users"></i> Barcode ESS</a>
+            </div>
+        </div>
+        
+        <header><h1>Barcode Generator 📊</h1></header>
+        <hr> 
+
+        <div class="tab-group">
+            <div class="tab-btn active" onclick="switchTab('single')">Standar</div>
+            <div class="tab-btn" onclick="switchTab('multi')">Pembelian Banyak</div>
+        </div>
+
+        <div class="feature-header">
+            <span class="label-small">Nama / Label Barcode:</span>
+            <div class="feature-dropdown">
+                <button class="btn-feature" onclick="toggleFeatureMenu()"><i class="fas fa-cog"></i> Fitur</button>
+                <div id="featureContent" class="feature-content">
+                    <button onclick="downloadWithText()"><i class="fas fa-save"></i> Simpan di HP (+Nama)</button>
+                    <button onclick="printBarcode()"><i class="fas fa-print"></i> Cetak Barcode</button>
+                    <button onclick="startScanner()"><i class="fas fa-camera"></i> Scan Kamera</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-single" class="input-panel active">
+            <input type="text" id="nameInput" class="input-small" placeholder="Nama produk...">
+            <label>Isi Barcode:</label>
+            <input type="text" id="dataInput" placeholder="Masukkan angka/teks...">
+        </div>
+
+        <div id="panel-multi" class="input-panel">
+            <input type="text" id="multiName" class="input-small" placeholder="Nama produk banyak...">
+            <label>PLU Produk:</label>
+            <input type="text" id="multiPLU" placeholder="Contoh: 20091183">
+            <label>Jumlah Produk:</label>
+            <input type="number" id="multiQty" placeholder="5">
+        </div>
+
+        <div id="reader"></div>
+
+        <div class="button-group">
+            <button class="btn" id="generateBtn" onclick="processBarcode()">Generate & Simpan</button>
+            <button class="btn" id="clearBtn" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div class="barcode-area" id="printableArea">
+            <p id="barcodeLabel" style="font-weight: bold; color: #000; margin-bottom: 5px; font-family: Arial; min-height: 20px;"></p>
+            <svg id="barcode"></svg>
+        </div>
+
+        <div class="history-section">
+            <h3><i class="fas fa-history"></i> Riwayat Firebase</h3>
+            <table class="history-table">
+                <thead>
+                    <tr><th>Nama</th><th>Kode</th><th>Aksi</th></tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1aMjPJDQPmZMTP5LDouI_j47kKEJmSWk",
+            authDomain: "barcode-qscv.firebaseapp.com",
+            projectId: "barcode-qscv",
+            storageBucket: "barcode-qscv.firebasestorage.app",
+            messagingSenderId: "204134538515",
+            appId: "1:204134538515:web:394a3880ced41726950ee6",
+            measurementId: "G-BFHZJ4LR3J"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const historyCol = collection(db, "history");
+
+        let currentMode = 'single';
+        let html5QrCode;
+
+        window.toggleFeatureMenu = () => document.getElementById('featureContent').classList.toggle('show');
+
+        window.switchTab = (mode) => {
+            currentMode = mode;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.input-panel').forEach(p => p.classList.remove('active'));
+            if(mode === 'single'){
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+                document.getElementById('panel-single').classList.add('active');
+            } else {
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+                document.getElementById('panel-multi').classList.add('active');
+            }
+        };
+
+        window.renderBarcode = (name, code) => {
+            document.getElementById('barcodeLabel').innerText = name;
+            JsBarcode("#barcode", code, { format: "CODE128", displayValue: true, margin: 10, height: 80 });
+        };
+
+        window.processBarcode = async () => {
+            let name = "", code = "";
+            if(currentMode === 'single') {
+                name = document.getElementById('nameInput').value.trim();
+                code = document.getElementById('dataInput').value.trim();
+            } else {
+                const n = document.getElementById('multiName').value.trim();
+                const p = document.getElementById('multiPLU').value.trim();
+                const q = document.getElementById('multiQty').value.trim();
+                if(n && p && q) { name = n; code = `B${p}${q.padStart(4, '0')}`; }
+            }
+
+            if(name && code) {
+                renderBarcode(name, code);
+                try {
+                    await addDoc(historyCol, { name: name, data: code, timestamp: serverTimestamp() });
+                } catch (e) { alert("Firebase Error: Gunakan HTTPS/Hosting"); }
+            } else { alert("Lengkapi semua kolom!"); }
+        };
+
+        window.downloadWithText = () => {
+            const labelText = document.getElementById('barcodeLabel').innerText;
+            const svg = document.getElementById('barcode');
+            if(!svg.innerHTML) return alert("Generate barcode dulu!");
+
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
+
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height + 40; 
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "black";
+                ctx.font = "bold 16px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(labelText, canvas.width / 2, 25);
+                ctx.drawImage(img, 0, 35);
+                const a = document.createElement("a");
+                a.download = `${labelText || 'barcode'}.png`;
+                a.href = canvas.toDataURL("image/png");
+                a.click();
+            };
+            img.src = "data:image/svg+xml;base64," + btoa(svgData);
+            document.getElementById('featureContent').classList.remove('show');
+        };
+
+        window.startScanner = () => {
+            const readerDiv = document.getElementById('reader');
+            readerDiv.style.display = 'block';
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, 
+                async (decodedText) => {
+                    await addDoc(historyCol, { name: "Hasil Scan", data: decodedText, timestamp: serverTimestamp() });
+                    html5QrCode.stop();
+                    readerDiv.style.display = 'none';
+                }
+            ).catch(() => alert("Kamera Error: Wajib menggunakan HTTPS (Hosting)"));
+        };
+
+        window.printBarcode = () => {
+            const content = document.getElementById('printableArea').innerHTML;
+            const win = window.open('', '', 'height=500,width=500');
+            win.document.write('<html><body style="text-align:center;padding:20px;font-family:Arial;">' + content + '</body></html>');
+            win.document.close();
+            win.print(); win.close();
+        };
+
+        // Realtime History
+        onSnapshot(query(historyCol, orderBy("timestamp", "desc")), (snapshot) => {
+            const body = document.getElementById('historyBody');
+            body.innerHTML = '';
+            snapshot.forEach(docSnap => {
+                const item = docSnap.data();
+                const tr = document.createElement('tr');
+                tr.className = 'history-row';
+                tr.innerHTML = `
+                    <td onclick="renderBarcode('${item.name}','${item.data}')">${item.name}</td>
+                    <td onclick="renderBarcode('${item.name}','${item.data}')"><code>${item.data}</code></td>
+                    <td><button style="border:none;background:none;color:red" onclick="deleteHistory('${docSnap.id}')"><i class="fas fa-trash"></i></button></td>
+                `;
+                body.appendChild(tr);
+            });
+        });
+
+        window.deleteHistory = async (id) => { if(confirm("Hapus?")) await deleteDoc(doc(db, "history", id)); };
+        window.clearAll = () => { document.querySelectorAll('input').forEach(i => i.value=""); document.getElementById('barcode').innerHTML=""; document.getElementById('barcodeLabel').innerText=""; };
+        
+        // Dropdown Menu
+        const dp = document.getElementById('main-dropdown');
+        document.getElementById('menu-btn').addEventListener('click', () => dp.classList.toggle('active'));
+        window.onclick = (e) => { 
+            if(!dp.contains(e.target)) dp.classList.remove('active'); 
+            if(!e.target.closest('.feature-dropdown')) document.getElementById('featureContent').classList.remove('show'); 
+        };
+    </script>
+</body>
+</html>
