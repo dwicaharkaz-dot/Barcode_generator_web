@@ -4,338 +4,244 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BARCODE PRODUK IDM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; }
-        header { background-color: #e50013; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
-        header h1 { margin: 0; font-size: 1.2em; font-family: 'Oswald', sans-serif; }
-        .logo-indomaret { height: 30px; background-color: white; padding: 3px 8px; border-radius: 4px; }
-        .header-separator { border: 0; height: 3px; background-image: linear-gradient(to right, #e50013, #ff4c4c, #e50013); margin: 0 0 20px 0; }
-        
-        main { padding: 15px; max-width: 900px; margin: 0 auto; background-color: white; border-radius: 8px; }
-
-        /* Kategori */
-        #category-buttons-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-        .category-group { display: flex; align-items: stretch; }
-        .category-button { background-color: #007bff; color: white; padding: 8px 12px; border: none; border-radius: 6px 0 0 6px; cursor: pointer; font-size: 0.9em; font-weight: bold; }
-        .edit-category-btn { background-color: #ffc107; padding: 8px; border: none; border-radius: 0 6px 6px 0; cursor: pointer; }
-
-        /* Tampilan Item Produk */
-        .product-item { display: flex; align-items: center; margin-bottom: 15px; background-color: white; padding: 5px; position: relative; }
-        
-        .product-image-container {
-            width: 70px; height: 70px; border: 2px solid #000; border-radius: 50%;
-            overflow: hidden; display: flex; justify-content: center; align-items: center;
-            background-color: #e9ecef; position: relative; z-index: 2; flex-shrink: 0;
-        }
-        .product-image { width: 100%; height: 100%; object-fit: cover; }
-
-        .product-info-wrapper {
-            flex-grow: 1; display: flex; align-items: center; border: 4px solid #000;
-            background-color: #e9ecef; border-radius: 35px; height: 60px;
-            position: relative; z-index: 1; left: -25px; padding-left: 35px;
-            overflow: hidden; cursor: pointer;
-        }
-        .product-text-content {
-            font-size: 0.85em; color: #000; line-height: 1.2;
-            white-space: normal; overflow: hidden; display: block; padding-right: 5px;
-        }
-        .product-text-content strong { display: inline; font-size: 1.1em; margin-right: 5px; }
-
-        .product-item-actions { display: flex; flex-direction: column; gap: 4px; width: 70px; flex-shrink: 0; }
-        .action-btn { background-color: #e50013; color: white; padding: 5px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75em; font-weight: bold; }
-
-        /* Form */
-        #add-product-form, #add-category-form { padding: 15px; border-radius: 6px; margin-top: 15px; display: none; }
-        #add-product-form { background-color: #e0f7fa; border: 1px solid #17a2b8; }
-        input[type="text"], input[type="file"] { width: 100%; padding: 10px; margin: 5px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: #fff; margin: 15% auto; padding: 20px; width: 80%; max-width: 350px; border-radius: 12px; text-align: center; }
+        :root { --primary: #e44d26; --secondary: #3b5998; --success: #28a745; --danger: #dc3545; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f4f7f6; }
+        header { background: #d71921; color: white; padding: 15px; text-align: center; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        header img { height: 30px; background: white; padding: 2px; border-radius: 3px; }
+        .container { padding: 15px; max-width: 600px; margin: auto; }
+        .btn { padding: 10px 15px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .btn-primary { background: #007bff; }
+        .btn-success { background: var(--success); width: 100%; margin-top: 10px; }
+        .btn-edit { background: var(--danger); padding: 5px 10px; font-size: 0.8em; }
+        .category-list { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
+        .category-item { background: #4a90e2; color: white; padding: 8px 15px; border-radius: 5px; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+        .product-item { background: white; margin-bottom: 10px; padding: 10px; border-radius: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid #000; }
+        .product-img { width: 60px; height: 60px; object-fit: cover; border-radius: 50%; border: 1px solid #ddd; }
+        .product-info { flex-grow: 1; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 20px; border-radius: 10px; text-align: center; width: 80%; max-width: 300px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        #add-product-form, #add-category-form { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>BARCODE PRODUK IDM 🏷️</h1>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9d/Logo_Indomaret.png" alt="Logo" class="logo-indomaret">
+    BARCODE PRODUK IDM 🏷️
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9d/Logo_Indomaret.png" alt="Indomaret">
 </header>
-<hr class="header-separator">
 
-<main>
-    <section id="category-selection">
-        <div id="category-buttons-container"></div>
-        <button onclick="showAddCategoryForm()" style="background:#28a745; color:white; border:none; padding:10px; width:100%; border-radius:6px; font-weight:bold;">+ KATEGORI BARU</button>
-        <div id="add-category-form">
-            <input type="text" id="new-category-name" placeholder="Nama Kategori">
-            <button onclick="saveCategory()" style="background:#28a745; color:white; border:none; padding:8px 15px; border-radius:4px;">Simpan</button>
-            <button onclick="hideAddCategoryForm()" style="background:#6c757d; color:white; border:none; padding:8px 15px; border-radius:4px;">Batal</button>
-        </div>
-    </section>
+<div class="container">
+    <button class="btn btn-success" onclick="showAddCategoryForm()">+ KATEGORI BARU</button>
+    
+    <div id="add-category-form">
+        <input type="text" id="new-category-name" placeholder="Nama Kategori (Contoh: SAY BREAD)">
+        <button class="btn btn-primary" onclick="saveCategory()">Simpan Kategori</button>
+        <button class="btn" style="background:#6c757d" onclick="hideAddCategoryForm()">Batal</button>
+    </div>
+
+    <div id="category-container" class="category-list"></div>
 
     <hr>
 
-    <section id="product-management" style="display:none;">
+    <div id="product-management" style="display:none;">
         <h3 id="product-category-title"></h3>
-        <button id="show-add-form-btn" style="background:#007bff; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold;">+ TAMBAH PRODUK</button>
-        
+        <button class="btn btn-primary" id="show-add-form-btn" onclick="showAddForm()">+ TAMBAH PRODUK</button>
+
         <div id="add-product-form">
             <h4 id="form-title">Tambah Produk Baru</h4>
             <input type="text" id="new-plu" placeholder="PLU Produk">
             <input type="text" id="new-nama" placeholder="Nama Produk">
             <label style="font-size: 0.8em;">Foto Produk (Opsional):</label>
             <input type="file" id="new-image" accept="image/*">
-            <button id="btn-save-product" onclick="saveProduct()" style="background:#28a745; color:white; border:none; padding:10px 20px; border-radius:4px;">Simpan Produk</button>
-            <button onclick="hideAddForm()" style="background:#6c757d; color:white; border:none; padding:10px 20px; border-radius:4px;">Batal</button>
+            <button class="btn btn-success" onclick="saveProduct()">Simpan Produk</button>
+            <button class="btn" style="background:#6c757d" onclick="hideAddForm()">Batal</button>
         </div>
 
-        <div id="product-list-container" style="margin-top:20px;"></div>
-    </section>
-</main>
+        <div id="product-list-container"></div>
+    </div>
+</div>
 
 <div id="barcode-modal" class="modal">
     <div class="modal-content">
         <div id="qrcode-plu" style="display:flex; justify-content:center;"></div>
         <p id="data-plu" style="font-weight:bold; margin-top:10px;"></p>
         <p id="modal-product-name" style="font-size:0.9em;"></p>
-        <button onclick="copyPLU()" style="background:#007bff; color:white; border:none; padding:8px 15px; border-radius:4px;">Salin PLU</button>
-        <button onclick="document.getElementById('barcode-modal').style.display='none'" style="border:none; background:none; color:red; display:block; margin:10px auto;">Tutup</button>
+        <button class="btn btn-primary" onclick="copyPLU()">Salin PLU</button>
+        <button class="btn" style="background:var(--danger)" onclick="document.getElementById('barcode-modal').style.display='none'">Tutup</button>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyD1aMjPJDQPmZMTP5LDouI_j47kKEJmSWk",
-        authDomain: "barcode-qscv.firebaseapp.com",
-        databaseURL: "https://barcode-qscv-default-rtdb.asia-southeast1.firebasedatabase.app/"
-        projectId: "barcode-qscv",
-        storageBucket: "barcode-qscv.firebasestorage.app",
-        messagingSenderId: "204134538515",
-        appId: "1:204134538515:web:394a3880ced41726950ee6"
-    };
+const firebaseConfig = {
+    apiKey: "AIzaSyD1aMjPJDQPmZMTP5LDouI_j47kKEJmSWk",
+    authDomain: "barcode-qscv.firebaseapp.com",
+    databaseURL: "https://barcode-qscv-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "barcode-qscv",
+    storageBucket: "barcode-qscv.firebasestorage.app",
+    messagingSenderId: "204134538515",
+    appId: "1:204134538515:web:394a3880ced41726950ee6"
+};
 
-    let products = {};
-    let currentCategory = '';
-    let isEditing = false;
-    let editIndex = null;
-    let database, productsRef;
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const productsRef = database.ref('produk/list');
 
-    // Inisialisasi Aplikasi
-try {
-    firebase.initializeApp(firebaseConfig);
-    database = firebase.database();
-    productsRef = database.ref('produk/list');
+let products = {};
+let currentCategory = '';
+let isEditing = false;
+let editIndex = null;
 
-    // Langsung hubungkan ke Firebase tanpa lewat Local Storage
-    loadDataFromFirebase();
-} catch (e) { console.error("Database Error!", e); }
+// Inisialisasi: Langsung ambil dari Firebase
+productsRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        products = data;
+        renderCategories();
+        if (currentCategory) renderProducts(currentCategory);
+    }
+});
 
-function loadDataFromFirebase() {
-    productsRef.on('value', (snapshot) => {
-        const remoteData = snapshot.val();
-        if (remoteData) {
-            products = remoteData; // Gunakan data murni dari cloud
-            renderCategories();
-            if (currentCategory) renderProducts(currentCategory);
-        } else {
-            // Jika database kosong (baru pertama kali)
-            products = {};
-            renderCategories();
-        }
+function renderCategories() {
+    const container = document.getElementById('category-container');
+    container.innerHTML = '';
+    Object.keys(products).forEach(cat => {
+        const div = document.createElement('div');
+        div.className = 'category-item';
+        div.innerHTML = `<span onclick="selectCategory('${cat}')">${cat}</span> 
+                         <span style="cursor:pointer" onclick="deleteCategory('${cat}')">🗑️</span>`;
+        container.appendChild(div);
     });
 }
 
-    function syncData() {
-        // Simpan ke Firebase
-        productsRef.set(products).then(() => {
-            console.log("Berhasil simpan ke Firebase");
-        }).catch((err) => {
-            console.error("Gagal simpan Firebase:", err);
-        });
-        
-        // Simpan ke Local Storage
-        localStorage.setItem('idm_barcode_cache', JSON.stringify(products));
+function selectCategory(cat) {
+    currentCategory = cat;
+    document.getElementById('product-management').style.display = 'block';
+    document.getElementById('product-category-title').innerText = "Kategori: " + cat;
+    renderProducts(cat);
+}
+
+function renderProducts(cat) {
+    const container = document.getElementById('product-list-container');
+    container.innerHTML = '';
+    if (!products[cat] || products[cat].length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:grey;">Belum ada produk.</p>';
+        return;
     }
-
-    function renderCategories() {
-        const container = document.getElementById('category-buttons-container');
-        container.innerHTML = '';
-        const keys = Object.keys(products);
-        
-        if (keys.length === 0) return;
-
-        keys.forEach(key => {
-            const div = document.createElement('div');
-            div.className = 'category-group';
-            div.innerHTML = `<button class="category-button" onclick="showCategory('${key}')">${key}</button>
-                             <button class="edit-category-btn" onclick="deleteCategory('${key}')">🗑️</button>`;
-            container.appendChild(div);
-        });
-    }
-
-    function showCategory(cat) {
-        currentCategory = cat;
-        document.getElementById('product-category-title').innerText = "Kategori: " + cat;
-        document.getElementById('product-management').style.display = 'block';
-        renderProducts(cat);
-    }
-
-    function renderProducts(cat) {
-        const container = document.getElementById('product-list-container');
-        container.innerHTML = '';
-        
-        if (!products[cat] || products[cat].length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:grey;">Belum ada produk.</p>';
-            return;
-        }
-
-        products[cat].forEach((p, index) => {
-            const item = document.createElement('div');
-            item.className = 'product-item';
-            item.innerHTML = `
-                <div class="product-image-container">
-                    ${p.gambar ? `<img src="${p.gambar}" class="product-image">` : '🖼️'}
-                </div>
-                <div class="product-info-wrapper" onclick="showBarcode(${index})">
-                    <div class="product-text-content">
-                        <strong>${p.plu}</strong><br>${p.nama}
-                    </div>
-                </div>
-                <div class="product-item-actions">
-                    <button class="action-btn" onclick="prepareEdit(${index})">EDIT</button>
-                    <button class="action-btn" onclick="deleteProduct(${index})">HAPUS</button>
-                </div>
-            `;
-            container.appendChild(item);
-        });
-    }
-
-    async function saveProduct() {
-        const pluInput = document.getElementById('new-plu');
-        const namaInput = document.getElementById('new-nama');
-        const imgInput = document.getElementById('new-image');
-        
-        const plu = pluInput.value.trim();
-        const nama = namaInput.value.trim();
-        
-        if (!plu || !nama) return alert("PLU dan Nama harus diisi!");
-
-        let imgBase64 = isEditing ? products[currentCategory][editIndex].gambar : null;
-        if (imgInput.files[0]) {
-            imgBase64 = await toBase64(imgInput.files[0]);
-        }
-
-        const data = { plu, nama, gambar: imgBase64 };
-
-        if (isEditing) {
-            products[currentCategory][editIndex] = data;
-        } else {
-            if (!products[currentCategory]) products[currentCategory] = [];
-            products[currentCategory].push(data);
-        }
-
-        syncData();
-        hideAddForm();
-        renderProducts(currentCategory);
-    }
-
-    function prepareEdit(index) {
-        isEditing = true;
-        editIndex = index;
-        const p = products[currentCategory][index];
-        document.getElementById('new-plu').value = p.plu;
-        document.getElementById('new-nama').value = p.nama;
-        document.getElementById('form-title').innerText = "Edit Produk";
-        document.getElementById('add-product-form').style.display = 'block';
-    }
-
-    function deleteProduct(index) {
-        if (confirm("Hapus produk ini?")) {
-            products[currentCategory].splice(index, 1);
-            syncData();
-            renderProducts(currentCategory);
-        }
-    }
-
-    function deleteCategory(cat) {
-        if (confirm("Hapus kategori " + cat + "?")) {
-            delete products[cat];
-            syncData();
-            renderCategories();
-            document.getElementById('product-management').style.display = 'none';
-        }
-    }
-
-    function showBarcode(index) {
-        const p = products[currentCategory][index];
-        const qrContainer = document.getElementById('qrcode-plu');
-        qrContainer.innerHTML = '';
-        new QRCode(qrContainer, { text: p.plu, width: 120, height: 120 });
-        document.getElementById('data-plu').innerText = p.plu;
-        document.getElementById('modal-product-name').innerText = p.nama;
-        document.getElementById('barcode-modal').style.display = 'block';
-    }
-
-    const toBase64 = file => new Promise((res, rej) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => res(reader.result);
-        reader.onerror = e => rej(e);
+    products[cat].forEach((p, index) => {
+        const item = document.createElement('div');
+        item.className = 'product-item';
+        item.innerHTML = `
+            <img src="${p.gambar || 'https://via.placeholder.com/60'}" class="product-img">
+            <div class="product-info" onclick="showBarcode(${index})">
+                <strong>${p.plu}</strong><br>${p.nama}
+            </div>
+            <div>
+                <button class="btn btn-edit" onclick="prepareEdit(${index})">EDIT</button>
+                <button class="btn btn-edit" style="background:var(--danger)" onclick="deleteProduct(${index})">HAPUS</button>
+            </div>
+        `;
+        container.appendChild(item);
     });
+}
 
-    function showAddCategoryForm() { document.getElementById('add-category-form').style.display = 'block'; }
-    function hideAddCategoryForm() { document.getElementById('add-category-form').style.display = 'none'; }
-    function hideAddForm() { 
-        document.getElementById('add-product-form').style.display = 'none'; 
-        isEditing = false; 
-        document.getElementById('new-plu').value = '';
-        document.getElementById('new-nama').value = '';
-        document.getElementById('new-image').value = '';
-    }
+async function saveProduct() {
+    const plu = document.getElementById('new-plu').value.trim();
+    const nama = document.getElementById('new-nama').value.trim();
+    const imgInput = document.getElementById('new-image');
     
-    document.getElementById('show-add-form-btn').onclick = () => {
-        const f = document.getElementById('add-product-form');
-        f.style.display = f.style.display === 'none' ? 'block' : 'none';
-        if(f.style.display === 'block') { 
-            isEditing = false; 
-            document.getElementById('form-title').innerText = "Tambah Produk Baru";
-            document.getElementById('new-plu').value = '';
-            document.getElementById('new-nama').value = '';
-        }
-    };
+    if (!plu || !nama) return alert("PLU dan Nama wajib diisi!");
 
-    function saveCategory() {
-        const nameInput = document.getElementById('new-category-name');
-        const name = nameInput.value.trim();
-        if (name && !products[name]) {
-            products[name] = [];
-            syncData();
-            renderCategories();
-            nameInput.value = '';
-            hideAddCategoryForm();
-        } else if (products[name]) {
-            alert("Kategori sudah ada!");
-        }
+    let imgBase64 = isEditing ? products[currentCategory][editIndex].gambar : null;
+    if (imgInput.files[0]) {
+        imgBase64 = await toBase64(imgInput.files[0]);
     }
-    function syncData() {
-    // Baris ini yang mengirim data dari HP Anda ke Firebase Cloud
-    productsRef.set(products).then(() => {
-        console.log("Berhasil simpan ke Firebase Cloud");
-    }).catch((err) => {
-        console.error("Gagal simpan Firebase:", err);
-    });
+
+    const newProduct = { plu, nama, gambar: imgBase64 };
+
+    if (isEditing) {
+        products[currentCategory][editIndex] = newProduct;
+    } else {
+        if (!products[currentCategory]) products[currentCategory] = [];
+        products[currentCategory].push(newProduct);
+    }
+
+    syncData();
+    hideAddForm();
 }
 
+function syncData() {
+    productsRef.set(products).then(() => {
+        console.log("Sinkronisasi Cloud Berhasil");
+    }).catch(err => alert("Gagal Sinkron: " + err));
+}
 
-    function copyPLU() {
-        const t = document.getElementById('data-plu').innerText;
-        navigator.clipboard.writeText(t).then(() => alert("PLU Disalin!"));
+function saveCategory() {
+    const name = document.getElementById('new-category-name').value.trim();
+    if (name && !products[name]) {
+        products[name] = [];
+        syncData();
+        hideAddCategoryForm();
     }
+}
+
+function deleteProduct(index) {
+    if (confirm("Hapus produk ini?")) {
+        products[currentCategory].splice(index, 1);
+        syncData();
+    }
+}
+
+function deleteCategory(cat) {
+    if (confirm("Hapus seluruh kategori " + cat + "?")) {
+        delete products[cat];
+        currentCategory = '';
+        document.getElementById('product-management').style.display = 'none';
+        syncData();
+    }
+}
+
+function showBarcode(index) {
+    const p = products[currentCategory][index];
+    document.getElementById('qrcode-plu').innerHTML = '';
+    new QRCode(document.getElementById('qrcode-plu'), { text: p.plu, width: 150, height: 150 });
+    document.getElementById('data-plu').innerText = p.plu;
+    document.getElementById('modal-product-name').innerText = p.nama;
+    document.getElementById('barcode-modal').style.display = 'flex';
+}
+
+function prepareEdit(index) {
+    isEditing = true; editIndex = index;
+    const p = products[currentCategory][index];
+    document.getElementById('new-plu').value = p.plu;
+    document.getElementById('new-nama').value = p.nama;
+    document.getElementById('form-title').innerText = "Edit Produk";
+    showAddForm();
+}
+
+function showAddForm() { document.getElementById('add-product-form').style.display = 'block'; }
+function hideAddForm() { 
+    document.getElementById('add-product-form').style.display = 'none'; 
+    isEditing = false; 
+    document.getElementById('new-plu').value = '';
+    document.getElementById('new-nama').value = '';
+}
+function showAddCategoryForm() { document.getElementById('add-category-form').style.display = 'block'; }
+function hideAddCategoryForm() { document.getElementById('add-category-form').style.display = 'none'; }
+function copyPLU() {
+    const txt = document.getElementById('data-plu').innerText;
+    navigator.clipboard.writeText(txt).then(() => alert("PLU Disalin!"));
+}
+const toBase64 = file => new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => res(reader.result);
+    reader.onerror = e => rej(e);
+});
 </script>
 </body>
 </html>
