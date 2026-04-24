@@ -126,33 +126,29 @@
     let database, productsRef;
 
     // Inisialisasi Aplikasi
-    try {
-        firebase.initializeApp(firebaseConfig);
-        database = firebase.database();
-        productsRef = database.ref('produk/list');
-        
-        // 1. Ambil data dari Local Storage secara instan
-        const localData = localStorage.getItem('idm_barcode_cache');
-        if (localData) {
-            products = JSON.parse(localData);
+try {
+    firebase.initializeApp(firebaseConfig);
+    database = firebase.database();
+    productsRef = database.ref('produk/list');
+
+    // Langsung hubungkan ke Firebase tanpa lewat Local Storage
+    loadDataFromFirebase();
+} catch (e) { console.error("Database Error!", e); }
+
+function loadDataFromFirebase() {
+    productsRef.on('value', (snapshot) => {
+        const remoteData = snapshot.val();
+        if (remoteData) {
+            products = remoteData; // Gunakan data murni dari cloud
+            renderCategories();
+            if (currentCategory) renderProducts(currentCategory);
+        } else {
+            // Jika database kosong (baru pertama kali)
+            products = {};
             renderCategories();
         }
-
-        // 2. Hubungkan ke Firebase
-        loadDataFromFirebase();
-    } catch (e) { console.error("Database Error!", e); }
-
-    function loadDataFromFirebase() {
-        productsRef.on('value', (snapshot) => {
-            const remoteData = snapshot.val();
-            if (remoteData) {
-                products = remoteData;
-                localStorage.setItem('idm_barcode_cache', JSON.stringify(products));
-                renderCategories();
-                if (currentCategory) renderProducts(currentCategory);
-            }
-        });
-    }
+    });
+}
 
     function syncData() {
         // Simpan ke Firebase
@@ -326,6 +322,15 @@
             alert("Kategori sudah ada!");
         }
     }
+    function syncData() {
+    // Baris ini yang mengirim data dari HP Anda ke Firebase Cloud
+    productsRef.set(products).then(() => {
+        console.log("Berhasil simpan ke Firebase Cloud");
+    }).catch((err) => {
+        console.error("Gagal simpan Firebase:", err);
+    });
+}
+
 
     function copyPLU() {
         const t = document.getElementById('data-plu').innerText;
