@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner Barcode Ritel</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 20px; background-color: #f0f2f5; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #reader { width: 100%; border-radius: 8px; overflow: hidden; background: #000; }
+        .result-box { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; display: none; background: #fff; }
+        .btn-scan { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; margin-bottom: 10px; cursor: pointer; font-weight: bold; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h3 style="text-align: center;">Scan Barcode Produk</h3>
+    
+    <div id="reader"></div>
+    
+    <div style="margin-top: 15px;">
+        <input type="text" id="barcode-input" placeholder="Barcode akan muncul di sini...">
+        <button class="btn-scan" onclick="cariData(document.getElementById('barcode-input').value)">Cek Data Produk</button>
+    </div>
+
+    <div id="result" class="result-box">
+        <p><strong>Nama:</strong> <span id="p-name">-</span></p>
+        <p><strong>Merek:</strong> <span id="p-brand">-</span></p>
+        <div id="p-image"></div>
+    </div>
+    
+    <p id="error-msg" style="color: red; font-size: 14px;"></p>
+</div>
+
+<script>
+    const html5QrCode = new Html5Qrcode("reader");
+    const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+        // Jika scan berhasil
+        document.getElementById('barcode-input').value = decodedText;
+        cariData(decodedText);
+        // Berhenti scan setelah dapat satu kode agar tidak terus-menerus memanggil API
+        html5QrCode.stop();
+    };
+
+    const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+    // Jalankan Kamera Otomatis
+    html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+    .catch(err => {
+        document.getElementById('error-msg').innerText = "Gagal akses kamera: " + err;
+    });
+
+    function cariData(barcode) {
+        if(!barcode) return;
+        const url = `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`;
+        
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const resBox = document.getElementById('result');
+                if(data.status === 1) {
+                    document.getElementById('p-name').innerText = data.product.product_name || "Tidak ada nama";
+                    document.getElementById('p-brand').innerText = data.product.brands || "Tidak ada merek";
+                    resBox.style.display = 'block';
+                } else {
+                    alert("Barang tidak ditemukan di Open Food Facts");
+                }
+            })
+            .catch(e => console.error(e));
+    }
+</script>
+
+</body>
+</html>
