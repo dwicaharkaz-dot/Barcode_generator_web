@@ -16,92 +16,37 @@
     .header-container img { height:40px; }
     .header-bg { display:flex; height:10px; }
     .color-red{flex:1;background:#e74c3c}.color-blue{flex:1;background:#3498db}.color-yellow{flex:1;background:#f1c40f}
-    header h1 { text-align:center; font-size:2em; margin:20px 0; color:#333; }
-    .container { width:90%; max-width:1200px; margin:20px auto; background:white; padding:20px;
+    .container { width:95%; max-width:1200px; margin:20px auto; background:white; padding:20px;
                  border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,.1); }
-    textarea { width:80%; height:120px; padding:10px; border:1px solid #ccc; border-radius:5px; }
-    button { padding:10px 20px; border:none; border-radius:5px; cursor:pointer; }
-    .input-form button { background:#2ecc71; color:white; }
     .search-bar { text-align:center; margin:12px 0; }
-    .search-bar input { width:70%; max-width:500px; padding:10px; border:1px solid #ddd;
-                        border-radius:25px; text-align:center; }
+    .search-bar input { width:80%; padding:12px; border:2px solid #3498db; border-radius:25px; text-align:center; font-size: 1rem; }
     table { width:100%; border-collapse:collapse; margin-top:20px; }
     th,td { border:1px solid #ddd; padding:8px; text-align:center; }
     th { background:#f2f2f2; }
-    #stokTable tbody tr { cursor: default; } 
-    #stokTable td:nth-child(2), #stokTable td:nth-child(3) { cursor: pointer; } 
-    .stok-fisik-cell input { width:120px; padding:5px; }
-    .selisih-negatif{color:#e74c3c;font-weight:bold}.selisih-positif{color:#27ae60;font-weight:bold}
-    .download-btn { background:#3498db; color:white; margin:10px 5px; }
-    .section-title { text-align:center; font-size:1.5em; color:#555; margin:30px 0 10px; }
-    .total-box { text-align:center; font-size:1.1em; font-weight:bold; padding:10px;
-                 border:2px dashed #3498db; border-radius:8px; background:#e8f5ff; margin-top:10px; }
-    .controls-row { display:flex; gap:10px; align-items:center; justify-content:center; margin-top:10px; }
-    .small { padding:8px 12px; font-size:0.95rem; }
+    .download-btn { background:#3498db; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; margin: 5px; }
     
-    /* --- CSS BARU UNTUK SCANNER --- */
-    #reader { width: 100%; max-width: 400px; margin: 10px auto; border-radius: 8px; overflow: hidden; display: none; background: #000; }
-    .btn-scanner-toggle { background: #8e44ad; color: white; font-weight: bold; }
-    .btn-scanner-stop { background: #c0392b; color: white; }
-
-    /* Navigasi & Menu */
-    .menu-container { position: relative; display: flex; align-items: center; }
-    .menu-button { padding: 10px 15px; font-size: 1rem; cursor: pointer; background-color: #f1c40f; color: #333; border: none; border-radius: 5px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 101; margin-right: 20px; }
-    .menu-popup { display: none; position: absolute; top: 100%; left: 0; min-width: 180px; border: 1px solid #ccc; padding: 15px; background-color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); border-radius: 8px; z-index: 100; }
-    .popup-button { display: block; width: 100%; padding: 10px; margin-bottom: 8px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; text-align: left; font-size: 0.95rem; }
-    
-    /* Modal */
-    .modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
-    .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; border-radius: 10px; }
-    .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-
-    /* Stok Controls */
-    .stok-controls-group { display: flex; gap: 15px; margin-bottom: 10px; }
-    .stok-split-btn { padding: 8px 12px; border-radius: 5px; background: #f1c40f; color: #333; border: 1px solid #e6a700; }
-    .stok-split-btn.active { background: #3498db; color: white; border: 2px solid #2980b9; }
-    .stok-status-label { font-size: 0.75rem; font-weight: bold; color: #2ecc71; margin-top: 3px; text-transform: uppercase; }
+    /* STYLE BARU UNTUK SCANNER */
+    #reader { width: 100%; max-width: 400px; margin: 10px auto; border-radius: 8px; overflow: hidden; display: none; border: 2px solid #3498db; }
+    .btn-scanner { background: #8e44ad; color: white; padding: 15px; width: 100%; max-width: 400px; border-radius: 50px; font-weight: bold; border: none; cursor: pointer; margin: 10px 0; }
   </style>
 </head>
 <body>
 
   <div class="header-container">
-    <div class="menu-container">
-        <button class="menu-button" onclick="toggleMenuPopup()">Menu ☰</button>
-        <div id="menuPopup" class="menu-popup">
-            <p style="margin-top: 0; font-weight: bold;">Pilih Aksi:</p>
-            <button class="popup-button" onclick="goToBarcodeESS()">Barcode ESS</button>
-            <button class="popup-button" onclick="goToESSOnline()" style="background-color: #27ae60;">ESS Online</button> 
-            <button class="popup-button" onclick="goToLaporanSales()">Laporan Sales</button>
-        </div>
-    </div>
     <img src="https://upload.wikimedia.org/wikipedia/commons/9/9d/Logo_Indomaret.png" alt="Logo Indomaret">
     <h1 style="font-size: 1.2em;">STOCK OPNAME T3EI</h1>
-    <div></div> 
+    <div></div>
   </div>
   <div class="header-bg"><div class="color-red"></div><div class="color-blue"></div><div class="color-yellow"></div></div>
 
   <div class="container">
-    <h2 class="section-title">Scan Barcode / PLU</h2>
-    <div style="text-align:center; margin-bottom: 20px;">
-        <button id="btnToggleScan" class="btn-scanner-toggle" style="padding:15px 30px; font-size: 1.1em; border-radius: 50px;" onclick="toggleScanner()">Mulai Scan Kamera 📷</button>
+    <div style="text-align: center;">
+        <button id="btnToggleScan" class="btn-scanner" onclick="toggleScanner()">📷 Buka Scanner Kamera</button>
         <div id="reader"></div>
     </div>
 
-    <h2 class="section-title">Pencarian Manual</h2>
     <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Cari PLU atau Nama Barang..." />
-    </div>
-
-    <h2 class="section-title" id="currentSoTitleDisplay"></h2>
-    <div class="stok-controls-group" style="justify-content: center;">
-        <div style="display:flex; flex-direction:column; align-items:center;">
-            <button class="stok-split-btn active" id="btnStokToko" onclick="setStokTarget('toko')">Stok Toko</button>
-            <div id="statusToko" class="stok-status-label">aktif</div>
-        </div>
-        <div style="display:flex; flex-direction:column; align-items:center;">
-            <button class="stok-split-btn" id="btnStokGudang" onclick="setStokTarget('gudang')">Stok Gudang</button>
-            <div id="statusGudang" class="stok-status-label"></div>
-        </div>
+      <input type="text" id="searchInput" placeholder="Cari PLU atau Nama Barang..." oninput="performSearch()" />
     </div>
 
     <table id="stokTable">
@@ -110,25 +55,15 @@
           <th>No</th><th>PLU</th><th>Nama Barang</th><th>Stok Sistem</th><th>Stok Fisik</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        </tbody>
     </table>
-    
-    <div style="text-align:center; margin-top:20px;">
-        <button class="download-btn" onclick="saveHistory()">Simpan History SO</button>
-        <button class="download-btn" style="background:#e74c3c;" onclick="resetStok()">Reset Semua</button>
-    </div>
-  </div>
-
-  <div class="container">
-      <h3>Import Data Sistem</h3>
-      <textarea id="dataInput" placeholder="Tempel data PLU/Nama di sini..."></textarea><br>
-      <button class="small" onclick="addData()">Tambah ke Tabel</button>
   </div>
 
   <script>
-    // --- KONFIGURASI FIREBASE ANDA ---
+    // Konfigurasi Firebase Anda
     const firebaseConfig = {
-        apiKey: "AIzaSyDlaMjPJDQPQMZMTPSLDOuI_j47kKJEJmSWK", 
+        apiKey: "AIzaSyDlaMjPJDQPQMZMTPSLDOuI_j47kKJEJmSWK",
         authDomain: "barcode-qscv.firebaseapp.com",
         databaseURL: "https://barcode-qscv-default-rtdb.asia-southeast1.firebasedatabase.app/",
         projectId: "barcode-qscv",
@@ -142,101 +77,65 @@
     const stockOpnameRef = database.ref('stock_opname');
     
     let allItems = [];
-    let currentStokTarget = 'toko';
     let html5QrCode;
 
-    // --- LOGIKA SCANNER ---
-    function toggleScanner() {
+    // --- PERBAIKAN LOGIKA SCANNER ---
+    async function toggleScanner() {
         const readerDiv = document.getElementById('reader');
         const btn = document.getElementById('btnToggleScan');
 
-        if (readerDiv.style.display === 'none') {
+        if (!html5QrCode || !html5QrCode.isScanning) {
             readerDiv.style.display = 'block';
-            btn.innerText = "Berhenti Scan ❌";
-            btn.className = "btn-scanner-stop";
-            startScanning();
+            btn.innerText = "❌ Tutup Scanner";
+            btn.style.background = "#c0392b";
+            
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+            
+            const config = { fps: 15, qrbox: { width: 250, height: 150 } };
+            
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                config, 
+                (decodedText) => {
+                    // Berhasil Scan
+                    document.getElementById('searchInput').value = decodedText;
+                    performSearch(); // Jalankan pencarian di tabel
+                    
+                    if (navigator.vibrate) navigator.vibrate(100); // Getar HP
+                    
+                    // Otomatis fokus ke input stok fisik barang tersebut
+                    setTimeout(() => {
+                        const targetInput = document.querySelector(`input[data-plu="${decodedText}"]`);
+                        if (targetInput) {
+                            targetInput.focus();
+                            stopScanning(); // Tutup kamera agar hemat baterai
+                        }
+                    }, 500);
+                }
+            ).catch(err => {
+                console.error(err);
+                alert("Kamera Error: Pastikan pakai HTTPS dan izinkan akses kamera.");
+                stopScanning();
+            });
         } else {
             stopScanning();
         }
     }
 
-    function startScanning() {
-        html5QrCode = new Html5Qrcode("reader");
-        const config = { fps: 15, qrbox: { width: 250, height: 150 } };
-
-        html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
-            // Bersihkan angka (menghindari karakter aneh)
-            const cleanedCode = decodedText.trim();
-            
-            // Masukkan ke input pencarian
-            const searchInput = document.getElementById('searchInput');
-            searchInput.value = cleanedCode;
-            
-            // Jalankan fungsi pencarian
-            performSearch();
-
-            // Beri feedback getaran
-            if (navigator.vibrate) navigator.vibrate(100);
-
-            // Cari element input stok fisik milik PLU tersebut
-            setTimeout(() => {
-                const inputStok = document.querySelector(`#stokTable input[data-plu="${cleanedCode}"]`);
-                if (inputStok) {
-                    inputStok.focus();
-                    inputStok.style.backgroundColor = "#fff9c4"; // Highlight sebentar
-                    stopScanning(); // Tutup kamera jika sudah ketemu agar tidak berat
-                }
-            }, 300);
-
-        }).catch(err => {
-            console.error(err);
-            alert("Gagal akses kamera. Gunakan HTTPS (GitHub Pages).");
-        });
-    }
-
     function stopScanning() {
-        if (html5QrCode) {
+        if (html5QrCode && html5QrCode.isScanning) {
             html5QrCode.stop().then(() => {
                 document.getElementById('reader').style.display = 'none';
                 const btn = document.getElementById('btnToggleScan');
-                btn.innerText = "Mulai Scan Kamera 📷";
-                btn.className = "btn-scanner-toggle";
+                btn.innerText = "📷 Buka Scanner Kamera";
+                btn.style.background = "#8e44ad";
             });
         }
     }
 
-    // --- LOGIKA TABEL & DATA ---
-    function renderTable() {
-        const tableBody = document.querySelector('#stokTable tbody');
-        tableBody.innerHTML = '';
-        allItems.forEach((it, index) => {
-            const displayValue = currentStokTarget === 'toko' ? it.stokToko : it.stokGudang;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${it.plu}</td>
-                <td style="text-align:left;">${it.nama}</td>
-                <td>${it.stokSistem}</td>
-                <td class="stok-fisik-cell">
-                    <input type="number" data-plu="${it.plu}" value="${displayValue || ''}" 
-                           onblur="updateFisik('${it.plu}', this)" style="width:80px;">
-                </td>
-            `;
-            tableBody.appendChild(tr);
-        });
-    }
-
-    function updateFisik(plu, inputEl) {
-        const item = allItems.find(i => String(i.plu) === String(plu));
-        if (item) {
-            const val = parseInt(inputEl.value) || 0;
-            if (currentStokTarget === 'toko') item.stokToko = val;
-            else item.stokGudang = val;
-            item.stokFisik = (item.stokToko || 0) + (item.stokGudang || 0);
-            saveToCloud();
-        }
-    }
-
+    // --- LOGIKA DATA ---
     function performSearch() {
         const q = document.getElementById('searchInput').value.toLowerCase();
         const rows = document.querySelectorAll('#stokTable tbody tr');
@@ -247,34 +146,42 @@
         });
     }
 
-    document.getElementById('searchInput').addEventListener('input', performSearch);
-
-    function setStokTarget(target) {
-        currentStokTarget = target;
-        document.getElementById('btnStokToko').classList.toggle('active', target === 'toko');
-        document.getElementById('btnStokGudang').classList.toggle('active', target === 'gudang');
-        document.getElementById('statusToko').innerText = target === 'toko' ? 'aktif' : '';
-        document.getElementById('statusGudang').innerText = target === 'gudang' ? 'aktif' : '';
-        renderTable();
+    function renderTable() {
+        const tableBody = document.querySelector('#stokTable tbody');
+        tableBody.innerHTML = '';
+        allItems.forEach((it, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${it.plu}</td>
+                <td style="text-align:left;">${it.nama}</td>
+                <td>${it.stokSistem || 0}</td>
+                <td>
+                    <input type="number" data-plu="${it.plu}" value="${it.stokFisik || ''}" 
+                           onblur="updateStok('${it.plu}', this)" style="width:80px; padding:5px;">
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        });
     }
 
-    function saveToCloud() {
-        stockOpnameRef.update({ list: allItems });
+    function updateStok(plu, inputEl) {
+        const item = allItems.find(i => String(i.plu) === String(plu));
+        if (item) {
+            item.stokFisik = parseInt(inputEl.value) || 0;
+            stockOpnameRef.update({ list: allItems });
+        }
     }
 
-    function loadFromCloud() {
+    function loadData() {
         stockOpnameRef.child('list').once('value').then(snap => {
             allItems = snap.val() || [];
             renderTable();
         });
     }
 
-    // Inisialisasi
-    loadFromCloud();
-
-    // Fungsi Navigasi Placeholder
-    function toggleMenuPopup() { document.getElementById('menuPopup').style.display = 'block'; }
-    function resetStok() { if(confirm("Hapus semua?")) { allItems = []; saveToCloud(); renderTable(); }}
+    // Load data saat halaman dibuka
+    loadData();
   </script>
 </body>
 </html>
