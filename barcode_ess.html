@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stok dan Minor DC Toko T3EI</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <style>
+        :root {
+            --primary-blue: #0056b3;
+            --accent-red: #dc3545;
+            --light-bg: #f4f6f9;
+            --text-dark: #333333;
+            --border-color: #cccccc;
+            --row-checked: #e2f0d9;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+        }
+
+        /* HEADER & UTILITY CONTROL */
+        .app-header {
+            background-color: #ffffff;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--primary-blue);
+            position: relative;
+        }
+
+        /* Identitas Branding Toko */
+        .brand-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .indomaret-logo {
+            display: flex;
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+        .indomaret-logo .blue-text { color: #0056b3; }
+        .indomaret-logo .red-text { color: #dc3545; }
+        .indomaret-logo .yellow-text { color: #ffc107; }
+
+        .title-section h1 {
+            font-size: 15px;
+            font-weight: 700;
+            margin: 0;
+            color: #333;
+            text-transform: uppercase;
+            text-align: right;
+        }
+        
+        .title-section .subtitle {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+            text-align: right;
+        }
+
+        .controls-grid {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Styling Input File & Tombol Control */
+        .file-upload-btn {
+            display: inline-block;
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+        }
+
+        .file-upload-btn:hover {
+            background-color: #004085;
+        }
+
+        .reset-btn {
+            background-color: var(--accent-red);
+            color: #ffffff;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+        }
+
+        .reset-btn:hover {
+            background-color: #bd2130;
+        }
+
+        #excel-file {
+            display: none;
+        }
+
+        /* Styling Kolom Pencarian Cepat + Aksesoris Tombol */
+        .search-wrapper {
+            flex-grow: 1;
+            max-width: 480px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .search-container-inner {
+            position: relative;
+            flex-grow: 1;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 30px 8px 12px;
+            font-size: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.15);
+        }
+
+        /* Tombol Silang (Clear Button) di Dalam Kolom */
+        .clear-search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .clear-search-btn:hover {
+            color: var(--accent-red);
+        }
+
+        /* Tombol Cari Manual (🔍) Baru */
+        .search-submit-btn {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-submit-btn:hover {
+            background-color: #004085;
+        }
+
+        /* Tombol Picu Kamera (📷) */
+        .camera-trigger-btn {
+            background-color: #6c757d;
+            color: #ffffff;
+            border: none;
+            padding: 8px 12px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .camera-trigger-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .camera-trigger-btn.active-cam {
+            background-color: var(--accent-red);
+        }
+
+        /* Wadah Scanner Kamera Mini */
+        #camera-scan-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 10px auto 0 auto;
+            border: 2px dashed var(--primary-blue);
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #000;
+            display: none;
+        }
+
+        .info-status {
+            width: 100%;
+            font-size: 11px;
+            color: #555;
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        /* DATA TABLE STYLE (COMPACT & CLEAN) */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: 6px;
+            overflow-x: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            max-height: 70vh;
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            color: #333333;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 8px 10px;
+            border-bottom: 2px solid var(--border-color);
+            border-right: 1px solid #e0e0e0;
+            z-index: 10;
+            text-align: left;
+        }
+
+        th:last-child, td:last-child {
+            border-right: none;
+        }
+
+        td {
+            font-size: 11.5px;
+            padding: 6px 10px;
+            border-bottom: 1px solid #eeeeee;
+            border-right: 1px solid #eeeeee;
+            color: #444444;
+            white-space: nowrap;
+        }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        .clickable-row {
+            cursor: pointer;
+        }
+
+        .clickable-row:hover {
+            background-color: #f1f5f9 !important;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+
+        .row-retur {
+            background-color: var(--row-checked) !important;
+            color: #888888 !important;
+            text-decoration: line-through;
+            opacity: 0.65;
+        }
+
+        .checkbox-cell {
+            cursor: default;
+        }
+
+        .checkbox-cell input {
+            cursor: pointer;
+            width: 15px;
+            height: 15px;
+            vertical-align: middle;
+            margin: 0;
+        }
+
+        /* Tombol Tautkan Barcode Manual di Tabel */
+        .link-barcode-btn {
+            background-color: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .link-barcode-btn:hover { background-color: #e0a800; }
+
+        /* MODAL POPUP BARCODE STYLE */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.55);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            max-width: 420px;
+            width: 90%;
+            position: relative;
+            border-top: 6px solid var(--accent-red);
+        }
+
+        .modal-content h3 {
+            margin: 0 0 5px 0;
+            font-size: 15px;
+            color: var(--primary-blue);
+            letter-spacing: 0.5px;
+        }
+
+        .modal-content p {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #111111;
+            margin: 5px 0 20px 0;
+            line-height: 1.4;
+        }
+
+        .barcode-container {
+            background: #ffffff;
+            padding: 10px;
+            border: 1px dashed var(--border-color);
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        #barcodeCanvas {
+            max-width: 100%;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 14px;
+            font-size: 22px;
+            cursor: pointer;
+            color: #aaa;
+            font-weight: bold;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <div class="brand-header">
+            <div class="indomaret-logo">
+                <span class="blue-text">Indo</span><span class="red-text">mar</span><span class="yellow-text">et</span>
+            </div>
+            <div class="title-section">
+                <h1>Stok dan Minor DC Toko T3EI</h1>
+                <div class="subtitle">Manual Search Button Engine • Kamera Scan HP/PDA • Bebas Lemot</div>
+            </div>
+        </div>
+
+        <div class="controls-grid">
+            <label for="excel-file" class="file-upload-btn">
+                📂 Pilih File Excel / CSV Minor
+            </label>
+            <input type="file" id="excel-file" accept=".xlsx, .xls, .csv">
+
+            <button class="reset-btn" onclick="resetApp()">⚠️ Reset Data</button>
+
+            <div class="search-wrapper">
+                <div class="search-container-inner">
+                    <input type="text" id="search-input" class="search-input" placeholder="Ketik PLU/Nama lalu klik Cari atau tekan Enter..." disabled>
+                    <button type="button" id="clear-search" class="clear-search-btn" title="Hapus Pencarian" onclick="clearSearchField()">✖️</button>
+                </div>
+                <button type="button" id="search-submit-btn" class="search-submit-btn" onclick="triggerManualSearch()" disabled>🔍 Cari</button>
+                <button type="button" id="toggle-camera-btn" class="camera-trigger-btn" title="Buka Kamera Scan" onclick="toggleCameraScanner()" disabled>📷</button>
+            </div>
+            
+            <div id="camera-scan-container"></div>
+            
+            <div id="info-status" class="info-status">Silakan masukkan file database Excel Anda untuk memuat data.</div>
+        </div>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="text-center" style="width: 60px;">Retur</th>
+                    <th class="text-center" style="width: 50px;">No</th>
+                    <th style="width: 100px;">PRDCD</th>
+                    <th>Singkatan / Nama Barang</th>
+                    <th class="text-center" style="width: 90px;">Cat_Cod</th>
+                    <th class="text-center" style="width: 60px;">Div</th>
+                    <th class="text-center" style="width: 60px;">Minor</th>
+                    <th class="text-center" style="width: 60px;">Stok</th>
+                    <th class="text-center" style="width: 60px;">PKM</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <tr>
+                    <td colspan="9" class="text-center" style="padding: 30px; color: #888; font-style: italic;">
+                        Belum ada data. Silakan klik tombol "Pilih File Excel / CSV Minor" di atas.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="barcodeModal" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3 id="modalPrdcd">PRDCD: -</h3>
+            <p id="modalNama">Nama Barang</p>
+            <div class="barcode-container">
+                <svg id="barcodeCanvas"></svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let MASTER_DATA = []; // Menyimpan semua data dari excel secara global
+        let barcodeCache = {}; // Menyimpan riwayat pemetaan barcode manual
+        let html5QrcodeScanner = null; // Menyimpan instance sistem kamera scanner
+
+        // LOAD AUTO-SAVE DATA KETIKA HALAMAN DIBUKA
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem('master_minor_data');
+            if (savedData) {
+                try {
+                    MASTER_DATA = JSON.parse(savedData);
+                    if (MASTER_DATA && MASTER_DATA.length > 0) {
+                        enableSearchControls();
+                        document.getElementById('info-status').innerText = `Memuat data otomatis: Terbaca ${MASTER_DATA.length} item dari memori browser.`;
+                        renderTable(MASTER_DATA.slice(0, 150));
+                    }
+                } catch (e) {
+                    console.error("Gagal memuat auto-save data", e);
+                }
+            }
+
+            const savedCache = localStorage.getItem('barcode_api_cache');
+            if (savedCache) {
+                try { barcodeCache = JSON.parse(savedCache); } catch(e) {}
+            }
+        });
+
+        function enableSearchControls() {
+            document.getElementById('search-input').disabled = false;
+            document.getElementById('search-submit-btn').disabled = false;
+            document.getElementById('toggle-camera-btn').disabled = false;
+        }
+
+        // 1. EVENT HANDLER UNTUK PROSES UPLOAD & PARSING EXCEL
+        document.getElementById('excel-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById('info-status').innerText = "Sedang memproses file, mohon tunggu...";
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = e.target.result;
+                    const workbook = XLSX.read(data, { type: 'binary' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+                    
+                    processExcelData(jsonData);
+                } catch (error) {
+                    alert("Gagal membaca file. Pastikan file berupa .xlsx atau .csv yang valid.");
+                    document.getElementById('info-status').innerText = "Error memproses file.";
+                }
+            };
+            
+            reader.readAsBinaryString(file);
+        });
+        // 2. CLEANSING & NORMALISASI DATA BARIS EXCEL INDOMARET
+        function processExcelData(matrixData) {
+            MASTER_DATA = [];
+            let startRowIndex = -1;
+
+            for (let i = 0; i < Math.min(matrixData.length, 10); i++) {
+                const row = matrixData[i];
+                if (row && row.includes('PRDCD')) {
+                    startRowIndex = i + 1;
+                    break;
+                }
+            }
+
+            if (startRowIndex === -1) { startRowIndex = 1; }
+
+            let virtualNo = 1;
+            for (let i = startRowIndex; i < matrixData.length; i++) {
+                const row = matrixData[i];
+                
+                if (!row || row.length < 3 || !row[1]) continue; 
+                
+                let noItem = row[0] ? row[0].toString().trim() : virtualNo.toString();
+                if(isNaN(noItem)) noItem = virtualNo.toString();
+
+                MASTER_DATA.push({
+                    no: noItem,
+                    prdcd: row[1] ? row[1].toString().trim() : '',
+                    singkatan: row[2] ? row[2].toString().trim() : '',
+                    cat_cod: row[3] ? row[3].toString().trim() : '',
+                    div: row[4] ? row[4].toString().trim() : '',
+                    minor: row[5] ? row[5].toString().trim() : '0',
+                    stok: row[6] ? row[6].toString().trim() : '0',
+                    pkm: row[7] ? row[7].toString().trim() : '0'
+                });
+                virtualNo++;
+            }
+
+            try {
+                localStorage.setItem('master_minor_data', JSON.stringify(MASTER_DATA));
+            } catch(e) {
+                console.warn("Ukuran data besar, disimpan di memori berjalan.");
+            }
+
+            enableSearchControls();
+            document.getElementById('search-input').value = "";
+            document.getElementById('info-status').innerText = `Berhasil memuat ${MASTER_DATA.length} item & Tersimpan Otomatis (Auto-Save).`;
+            
+            renderTable(MASTER_DATA.slice(0, 150));
+        }
+
+        // 3. FUNGSI RENDER TABEL OPTIMAL
+        function renderTable(dataItems) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = ""; 
+
+            if (dataItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center" style="padding: 20px; color: #dc3545;">Item tidak ditemukan.</td></tr>`;
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+
+            dataItems.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "clickable-row";
+                tr.setAttribute('data-prdcd', item.prdcd);
+
+                const isReturSaved = localStorage.getItem('retur_' + item.prdcd) === 'true';
+                if (isReturSaved) tr.classList.add('row-retur');
+
+                tr.innerHTML = `
+                    <td class="text-center checkbox-cell">
+                        <input type="checkbox" ${isReturSaved ? 'checked' : ''} onchange="toggleRetur(this, event)">
+                    </td>
+                    <td class="text-center" style="color: #888;">${item.no}</td>
+                    <td style="font-weight: 600; color: #0056b3;">${item.prdcd}</td>
+                    <td style="white-space: normal; word-break: break-word;">
+                        ${item.singkatan}
+                        <button class="link-barcode-btn" title="Kunci Barcode Fisik Kemasan" onclick="manuallyLinkBarcode('${item.prdcd}', '${item.singkatan}', event)">🔗 Barcode</button>
+                    </td>
+                    <td class="text-center">${item.cat_cod}</td>
+                    <td class="text-center">${item.div}</td>
+                    <td class="text-center" style="font-weight: bold; color: #444;">${item.minor}</td>
+                    <td class="text-center">${item.stok}</td>
+                    <td class="text-center">${item.pkm}</td>
+                `;
+
+                tr.addEventListener('click', function() {
+                    openBarcodeModal(item.prdcd, item.singkatan);
+                });
+
+                fragment.appendChild(tr);
+            });
+
+            tbody.appendChild(fragment);
+        }
+
+        // 4. KONTROL INPUT DAN TOMBOL SILANG (BEBAS LEMOT KARENA TIDAK TRIGGER REAL-TIME FILTER)
+        const searchInputEl = document.getElementById('search-input');
+        const clearBtnEl = document.getElementById('clear-search');
+
+        searchInputEl.addEventListener('input', function(e) {
+            // Hanya mengontrol kemunculan tombol silang tanpa memaksa render tabel
+            clearBtnEl.style.display = e.target.value.trim().length > 0 ? "block" : "none";
+        });
+
+        // Jika Mas menekan tombol 'Enter' pada Keyboard HP/PDA, pencarian langsung dimulai
+        searchInputEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                triggerManualSearch();
+            }
+        });
+
+        function clearSearchField() {
+            searchInputEl.value = "";
+            clearBtnEl.style.display = "none";
+            searchInputEl.focus();
+            document.getElementById('info-status').innerText = `Menampilkan semua data (${MASTER_DATA.length} item).`;
+            renderTable(MASTER_DATA.slice(0, 150));
+        }
+
+        // 5. EKSEKUSI UTAMA PENCARIAN SAAT TOMBOL CARI DIKLIK
+        function triggerManualSearch() {
+            const keyword = searchInputEl.value.trim();
+            const statusLabel = document.getElementById('info-status');
+
+            if (keyword === "") {
+                statusLabel.innerText = `Menampilkan semua data (${MASTER_DATA.length} item).`;
+                renderTable(MASTER_DATA.slice(0, 150));
+                return;
+            }
+
+            // JIKA MENETIK/SCAN BARCODE FISIK PANJANG (>10 DIGIT)
+            if (/^\d+$/.test(keyword) && keyword.length > 10) {
+                statusLabel.innerText = `Memproses Barcode: ${keyword}...`;
+                handleSmartBarcodeLookup(keyword);
+            } else {
+                // PENCARIAN BY PLU ATAU NAMA (DIJAMIN SUPER CEPAT KARENA DI-TRIGGER SEKALI SAJA)
+                const lowKeyword = keyword.toLowerCase();
+                const filtered = MASTER_DATA.filter(item => {
+                    return item.prdcd.toLowerCase().includes(lowKeyword) || 
+                           item.singkatan.toLowerCase().includes(lowKeyword);
+                });
+                
+                statusLabel.innerText = `Ditemukan ${filtered.length} item untuk kata kunci "${keyword}".`;
+                renderTable(filtered);
+            }
+        }
+
+        // 6. PEMETAAN BARCODE CERDAS LOKAL TOKO
+        async function handleSmartBarcodeLookup(barcodeNum) {
+            const statusLabel = document.getElementById('info-status');
+            
+            if (barcodeCache[barcodeNum]) {
+                const mappedPluOrName = barcodeCache[barcodeNum];
+                const filtered = MASTER_DATA.filter(item => item.prdcd === mappedPluOrName || item.singkatan.toUpperCase().includes(mappedPluOrName.toUpperCase()));
+                if (filtered.length > 0) {
+                    statusLabel.innerHTML = `🎯 <b>Barcode Terdaftar Toko</b>: Ditemukan untuk PLU ${filtered[0].prdcd}.`;
+                    renderTable(filtered);
+                    return;
+                }
+            }
+
+            const partialCode = barcodeNum.slice(-7);
+            let partialFiltered = MASTER_DATA.filter(item => item.prdcd.includes(partialCode) || barcodeNum.includes(item.prdcd));
+            
+            if (partialFiltered.length > 0) {
+                statusLabel.innerHTML = `🔍 <b>Pencocokan Angka Cerdas</b>: Menampilkan item ber-PLU mirip.`;
+                renderTable(partialFiltered);
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://id.openfoodfacts.org/api/v0/product/${barcodeNum}.json`);
+                const data = await response.json();
+                
+                if (data.status === 1 && data.product && data.product.product_name) {
+                    let onlineName = data.product.product_name;
+                    barcodeCache[barcodeNum] = onlineName;
+                    localStorage.setItem('barcode_api_cache', JSON.stringify(barcodeCache));
+                    
+                    const words = onlineName.toUpperCase().replace(/[^A-Z0-9 ]/g, "").split(" ").filter(w => w.length > 2);
+                    const coreWord = words.length > 0 ? words[0] : onlineName.toUpperCase();
+                    
+                    const filteredOnline = MASTER_DATA.filter(item => item.singkatan.toUpperCase().includes(coreWord));
+                    statusLabel.innerHTML = `🌐 Internet Open Data: <b>${onlineName}</b>. Ter-filter ${filteredOnline.length} item.`;
+                    renderTable(filteredOnline);
+                } else {
+                    statusLabel.innerHTML = `⚠️ Barcode <b>${barcodeNum}</b> belum ada. Tekan tombol <b>🔗 Barcode</b> di tabel untuk mengunci item.`;
+                    fallbackSearch(barcodeNum);
+                }
+            } catch (err) {
+                statusLabel.innerText = `Mode Offline/Sinyal Lambat. Menampilkan kecocokan angka terdekat...`;
+                fallbackSearch(barcodeNum);
+            }
+        }
+
+        function manuallyLinkBarcode(prdcd, singkatan, event) {
+            if (event) event.stopPropagation();
+            const scanValue = searchInputEl.value.trim();
+            if (!scanValue || scanValue.length < 10 || isNaN(scanValue)) {
+                const userInput = prompt(`Masukkan/Scan nomor barcode asli 13-digit kemasan untuk barang: \n[ ${singkatan} ]\n\n(Scan barangnya di kotak input pencarian lalu klik tombol tautkan ini kembali):`, scanValue);
+                if (userInput && userInput.trim().length >= 10) saveBarcodeMapping(userInput.trim(), prdcd, singkatan);
+            } else {
+                saveBarcodeMapping(scanValue, prdcd, singkatan);
+            }
+        }
+
+        function saveBarcodeMapping(barcode, prdcd, name) {
+            barcodeCache[barcode] = prdcd;
+            localStorage.setItem('barcode_api_cache', JSON.stringify(barcodeCache));
+            alert(`Sukses! Barcode ${barcode} telah dikunci ke PLU ${prdcd} (${name}).`);
+            clearSearchField();
+        }
+
+        function fallbackSearch(num) {
+            const truncated = num.length > 8 ? num.slice(-6) : num;
+            const filtered = MASTER_DATA.filter(item => item.prdcd.includes(truncated) || item.singkatan.includes(truncated));
+            renderTable(filtered);
+        }
+
+        // 7. FITUR SCAN BARCODE MENGGUNAKAN KAMERA (OTOMATIS CARI KETIKA SELESAI SCAN)
+        function toggleCameraScanner() {
+            const container = document.getElementById('camera-scan-container');
+            const btn = document.getElementById('toggle-camera-btn');
+            
+            if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+                stopCameraEngine();
+                return;
+            }
+
+            container.style.display = "block";
+            btn.classList.add('active-cam');
+            btn.innerText = "✖ Tutup";
+
+            html5QrcodeScanner = new Html5Qrcode("camera-scan-container");
+            const config = { 
+                fps: 15, 
+                qrbox: { width: 280, height: 160 },
+                formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8, Html5QrcodeSupportedFormats.CODE_128 ]
+            };
+
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                config,
+                (decodedText) => {
+                    searchInputEl.value = decodedText;
+                    clearBtnEl.style.display = "block";
+                    
+                    // Khusus scan kamera, otomatis langsung eksekusi cari agar Mas tidak perlu klik tombol lagi
+                    executeSearchLogicFromCamera(decodedText);
+                    
+                    if (navigator.vibrate) navigator.vibrate(80);
+                    stopCameraEngine();
+                },
+                (errorMessage) => { }
+            ).catch(err => {
+                alert("Gagal mengakses kamera. Berikan izin akses kamera pada browser.");
+                stopCameraEngine();
+            });
+        }
+
+        function executeSearchLogicFromCamera(decodedText) {
+            document.getElementById('info-status').innerText = `Memproses Barcode: ${decodedText}...`;
+            handleSmartBarcodeLookup(decodedText);
+        }
+
+        function stopCameraEngine() {
+            const container = document.getElementById('camera-scan-container');
+            const btn = document.getElementById('toggle-camera-btn');
+            btn.classList.remove('active-cam');
+            btn.innerText = "📷";
+            
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => { container.style.display = "none"; }).catch(err => { container.style.display = "none"; });
+            } else {
+                container.style.display = "none";
+            }
+        }
+
+        // 8. FITUR CENTANG RETUR
+        function toggleRetur(checkbox, event) {
+            if (event) event.stopPropagation(); 
+            const tr = checkbox.closest('tr');
+            const prdcd = tr.getAttribute('data-prdcd');
+
+            if (checkbox.checked) {
+                tr.classList.add('row-retur');
+                localStorage.setItem('retur_' + prdcd, 'true');
+            } else {
+                tr.classList.remove('row-retur');
+                localStorage.removeItem('retur_' + prdcd);
+            }
+        }
+
+        // 9. FUNGSI RESET DATA APLIKASI
+        function resetApp() {
+            if (confirm("Apakah Anda yakin ingin menghapus data item yang tersimpan di aplikasi ini?")) {
+                stopCameraEngine();
+                localStorage.removeItem('master_minor_data');
+                localStorage.removeItem('barcode_api_cache');
+                
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('retur_')) localStorage.removeItem(key);
+                });
+
+                MASTER_DATA = [];
+                barcodeCache = {};
+                document.getElementById('excel-file').value = "";
+                searchInputEl.value = "";
+                clearBtnEl.style.display = "none";
+                document.getElementById('search-input').disabled = true;
+                document.getElementById('search-submit-btn').disabled = true;
+                document.getElementById('toggle-camera-btn').disabled = true;
+                document.getElementById('info-status').innerText = "Data telah di-reset. Silakan masukkan file baru.";
+                
+                const tbody = document.getElementById('table-body');
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center" style="padding: 30px; color: #888; font-style: italic;">Belum ada data. Silakan klik tombol "Pilih File Excel / CSV Minor" di atas.</td></tr>`;
+            }
+        }
+
+        // 10. MODAL POPUP & BARCODE GENERATOR ENGINE
+        function openBarcodeModal(prdcd, namaBarang) {
+            document.getElementById('modalPrdcd').innerText = "PRDCD: " + prdcd;
+            document.getElementById('modalNama').innerText = namaBarang;
+            document.getElementById('barcodeModal').style.display = 'flex';
+            
+            try {
+                JsBarcode("#barcodeCanvas", prdcd, {
+                    format: "CODE128",
+                    lineColor: "#000000",
+                    width: 2.2,
+                    height: 75,
+                    displayValue: true,
+                    fontSize: 13,
+                    fontOptions: "bold"
+                });
+            } catch(err) {
+                console.error("Gagal membuat barcode", err);
+            }
+        }
+
+        function closeModal() { document.getElementById('barcodeModal').style.display = 'none'; }
+    </script>
+</body>
+</html>
